@@ -14,7 +14,7 @@
         "gigablah/silex-view"   : "dev-master"
     },
     "autoload" : {
-        "psr-4": { "Speedwork\\View": "src" }
+        "psr-4": { "Speedwork\\View\\": "src" }
     },
     "minimum-stability": "dev"
 }
