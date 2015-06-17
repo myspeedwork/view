@@ -8,23 +8,26 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Speedwork\View;
 
-use Util\Utility;
+use Speedwork\Config\Configure;
+use Speedwork\Core\Application;
+use Speedwork\Core\Registry;
+use Speedwork\Util\Router;
+use Speedwork\Util\Utility;
 
 /**
  * @author sankar <sankar.suda@gmail.com>
  */
 class Template extends Controller
 {
-    public $_footer             = [];
-    public $_header             = [];
+    public $_footer = [];
+    public $_header = [];
 
-    public $breadcrumbs        = [];
-    public $is_ajax_request    = false;
-    public $_device            = 'computer';
-    public $url                = _URL;
+    public $breadcrumbs     = [];
+    public $is_ajax_request = false;
+    public $_device         = 'computer';
+    public $url             = _URL;
 
     /**
      * File extension. Defaults to template ".tpl".
@@ -37,7 +40,6 @@ class Template extends Controller
      * Document title.
      *
      * @var string
-     * @access  private
      */
     private $_title = '';
 
@@ -45,7 +47,6 @@ class Template extends Controller
      * Document description.
      *
      * @var string
-     * @access  private
      */
     private $_description = '';
 
@@ -53,7 +54,6 @@ class Template extends Controller
      * Document description.
      *
      * @var string
-     * @access  private
      */
     private $_keywords = '';
 
@@ -61,7 +61,6 @@ class Template extends Controller
      *  Array of linked links.
      *
      * @var array
-     * @access  private
      */
     private $_links = [];
 
@@ -69,7 +68,6 @@ class Template extends Controller
      * Document base URL.
      *
      * @var string
-     * @access  private
      */
     private $_base = '';
 
@@ -77,7 +75,6 @@ class Template extends Controller
      * Document base URL.
      *
      * @var string
-     * @access  private
      */
     private $_basetarget = '_self';
 
@@ -85,7 +82,6 @@ class Template extends Controller
      * Array of linked scripts.
      *
      * @var array
-     * @access   private
      */
     private $_scripts = [];
 
@@ -93,7 +89,6 @@ class Template extends Controller
      * Array of scripts placed in the header.
      *
      * @var array
-     * @access   private
      */
     private $_script = [];
 
@@ -101,7 +96,6 @@ class Template extends Controller
      * Array of linked style sheets.
      *
      * @var array
-     * @access  private
      */
     private $_styleSheets = [];
 
@@ -109,7 +103,6 @@ class Template extends Controller
      * Array of included style declarations.
      *
      * @var array
-     * @access  private
      */
     private $_style = [];
 
@@ -117,7 +110,6 @@ class Template extends Controller
      * Array of meta tags.
      *
      * @var array
-     * @access  private
      */
     private $_metaTags = [];
 
@@ -126,7 +118,6 @@ class Template extends Controller
      * Contains the document language setting.
      *
      * @var string
-     * @access  private
      */
     private $_language = 'en';
 
@@ -134,7 +125,6 @@ class Template extends Controller
      * Contains the document direction setting.
      *
      * @var string
-     * @access  private
      */
     private $_direction = 'ltr';
 
@@ -142,7 +132,6 @@ class Template extends Controller
       * Document generator.
       *
       * @var     string
-      * @access  private
       */
      private $_generator = 'Speedwork';
 
@@ -150,7 +139,6 @@ class Template extends Controller
      * Contains the character encoding string.
      *
      * @var string
-     * @access  private
      */
     private $_charset = 'utf-8';
 
@@ -158,7 +146,6 @@ class Template extends Controller
      * Document mime type.
      *
      * @var string
-     * @access  private
      */
     private $_mime = 'text/html';
 
@@ -169,10 +156,10 @@ class Template extends Controller
      */
     public static $path;
 
-    public $_author             = '';
-    public $_copyright          = '';
-    public $_robots             = 'index,follow';
-    public $_cachecontrol       = 'max-age=30';
+    public $_author       = '';
+    public $_copyright    = '';
+    public $_robots       = 'index,follow';
+    public $_cachecontrol = 'max-age=30';
 
     /**
      * Add breadCrumb item to breadCrumb.
@@ -249,8 +236,8 @@ class Template extends Controller
      **/
     public function addModuleScript($module, $file, $attr = [])
     {
-        $url    = Application::Url($module, 'module');
-        $path   = $url.'modules/'.$module.'/assets/'.$file;
+        $url  = Application::Url($module, 'module');
+        $path = $url.'modules/'.$module.'/assets/'.$file;
         self::addScriptUrl($path, $attr);
 
         return $this;
@@ -303,7 +290,6 @@ class Template extends Controller
      *
      * @param string $url  URL to the linked script
      * @param string $type Type of script. Defaults to 'text/javascript'
-     * @access   public
      */
     public function addScriptUrl($url, $attribs = [], $type = 'text/javascript')
     {
@@ -324,13 +310,12 @@ class Template extends Controller
      * @param string $url   URL to the linked style sheet
      * @param string $type  Mime encoding type
      * @param string $media Media type that this stylesheet applies to
-     * @access   public
      */
     public function addStyleSheetUrl($url, $attribs = [], $media = null, $type = 'text/css')
     {
-        $this->_styleSheets[$url]['mime']       = $type;
-        $this->_styleSheets[$url]['media']      = $media;
-        $this->_styleSheets[$url]['attribs']    = $attribs;
+        $this->_styleSheets[$url]['mime']    = $type;
+        $this->_styleSheets[$url]['media']   = $media;
+        $this->_styleSheets[$url]['attribs'] = $attribs;
 
         return $this;
     }
@@ -340,7 +325,6 @@ class Template extends Controller
      *
      * @param string $filename
      * @param string $type     Type of script. Defaults to 'text/javascript'
-     * @access   public
      */
     public function addScript($filename, $attribs = [], $type = 'text/javascript')
     {
@@ -356,7 +340,6 @@ class Template extends Controller
      * @param string $filename
      * @param string $type     Mime encoding type
      * @param string $media    Media type that this stylesheet applies to
-     * @access   public
      */
     public function addStyleSheet($filename, $attribs = [], $media = null, $type = 'text/css')
     {
@@ -369,7 +352,6 @@ class Template extends Controller
     /**
      * Adds a script to the page.
      *
-     * @access   public
      *
      * @param string $content Script
      * @param string $type    Scripting mime (defaults to 'text/javascript')
@@ -387,7 +369,6 @@ class Template extends Controller
      *
      * @param string $content Style declarations
      * @param string $type    Type of stylesheet (defaults to 'text/css')
-     * @access   public
      */
     public function addStyleDeclaration($content, $type = 'text/css')
     {
@@ -400,7 +381,6 @@ class Template extends Controller
      * Adds a custom html string to the head block.
      *
      * @param string The html to add to the head
-     * @access   public
      */
     public function addCustomTag($html, $position = 'footer')
     {
@@ -416,7 +396,6 @@ class Template extends Controller
      * @param bool   $http_equiv META type "http-equiv" defaults to null
      *
      * @return string
-     * @access  public
      */
     public function getMetaData($name, $http_equiv = false)
     {
@@ -443,7 +422,6 @@ class Template extends Controller
      * @param string $name       Value of name or http-equiv tag
      * @param string $content    Value of the content tag
      * @param bool   $http_equiv META type "http-equiv" defaults to null
-     * @access public
      */
     public function setMetaData($name, $content, $http_equiv = false)
     {
@@ -469,7 +447,6 @@ class Template extends Controller
      * Sets the document charset.
      *
      * @param string $type Charset encoding string
-     * @access  public
      */
     public function setCharset($type = 'utf-8')
     {
@@ -479,7 +456,6 @@ class Template extends Controller
     /**
      * Returns the document charset encoding.
      *
-     * @access public
      *
      * @return string
      */
@@ -491,7 +467,6 @@ class Template extends Controller
     /**
      * Sets the global document language declaration. Default is English (en-gb).
      *
-     * @access public
      *
      * @param string $lang
      */
@@ -504,7 +479,6 @@ class Template extends Controller
      * Returns the document language.
      *
      * @return string
-     * @access public
      */
     public function getLanguage()
     {
@@ -514,7 +488,6 @@ class Template extends Controller
     /**
      * Sets the global document direction declaration. Default is left-to-right (ltr).
      *
-     * @access public
      *
      * @param string $lang
      */
@@ -527,7 +500,6 @@ class Template extends Controller
      * Returns the document language.
      *
      * @return string
-     * @access public
      */
     public function getDirection()
     {
@@ -537,7 +509,6 @@ class Template extends Controller
      * Sets the base URI of the document.
      *
      * @param string $base
-     * @access   public
      */
     public function setBase($base, $target = '_self')
     {
@@ -554,7 +525,6 @@ class Template extends Controller
      * Return the base URI of the document.
      *
      * @return string
-     * @access   public
      */
     public function getBase()
     {
@@ -565,7 +535,6 @@ class Template extends Controller
      * Sets the description of the document.
      *
      * @param string $title
-     * @access   public
      */
     public function setDescription($description)
     {
@@ -576,7 +545,6 @@ class Template extends Controller
      * Return the title of the page.
      *
      * @return string
-     * @access   public
      */
     public function getDescription()
     {
@@ -587,7 +555,6 @@ class Template extends Controller
      * Sets the title of the document.
      *
      * @param string $title
-     * @access   public
      */
     public function setTitle($title)
     {
@@ -598,7 +565,6 @@ class Template extends Controller
      * Return the title of the document.
      *
      * @return string
-     * @access   public
      */
     public function getTitle()
     {
@@ -609,7 +575,6 @@ class Template extends Controller
      * Sets the description of the document.
      *
      * @param string $title
-     * @access   public
      */
     public function setKeywords($keywords)
     {
@@ -620,7 +585,6 @@ class Template extends Controller
      * Return the title of the page.
      *
      * @return string
-     * @access   public
      */
     public function getKeywords()
     {
@@ -631,7 +595,6 @@ class Template extends Controller
      * Sets the document generator.
      *
      * @param   string
-     * @access  public
      */
     public function setGenerator($generator)
     {
@@ -641,7 +604,6 @@ class Template extends Controller
     /**
      * Returns the document generator.
      *
-     * @access public
      *
      * @return string
      */
@@ -660,7 +622,6 @@ class Template extends Controller
      * http://www.w3.org/TR/xhtml-media-types/}) for more details.</p>
      *
      * @param string $type
-     * @access   public
      */
     public function setMimeEncoding($type = 'text/html')
     {
@@ -674,7 +635,6 @@ class Template extends Controller
      * ('rev' refers to reverse relation, 'rel' indicates normal, forward relation.)
      * Typical tag: <link href="index.php" rel="Start"></p>
      *
-     * @access   public
      *
      * @param string $href       The link that is being related.
      * @param string $relation   Relation of link.
@@ -700,7 +660,6 @@ class Template extends Controller
      * @param string $href     The link that is being related.
      * @param string $type     File type
      * @param string $relation Relation of link
-     * @access  public
      */
     public function addFavicon($href, $type = 'image/x-icon', $relation = 'shortcut icon')
     {
@@ -740,7 +699,7 @@ class Template extends Controller
 
         $prefix = Registry::get('url_prefix');
         //define global javascript var
-        $html =  '<script type="text/javascript">';
+        $html = '<script type="text/javascript">';
         $html .= 'var is_user_logged_in = '.(($this->is_user_logged_in) ? ' true' : ' false').';';
         $html .= 'var url = "'.$this->format(_URL).'";';
         $html .= 'var base_url = "'.$this->format(rtrim(_URL.$prefix, '/')).'";';
@@ -772,7 +731,6 @@ class Template extends Controller
     /**
      * Generates the head html and return the results as a string.
      *
-     * @access public
      *
      * @return string
      */
@@ -837,7 +795,7 @@ class Template extends Controller
             if (!is_null($strAttr['media'])) {
                 $html .= ' media="'.$strAttr['media'].'" ';
             }
-            if ($temp =  Utility::parseAttributes($strAttr['attribs'])) {
+            if ($temp = Utility::parseAttributes($strAttr['attribs'])) {
                 $html .= ' '.$temp;
             }
             $html .= $tagEnd.$lnEnd;
@@ -877,7 +835,6 @@ class Template extends Controller
     /**
      * Generates the footer html and return the results as a string.
      *
-     * @access public
      *
      * @return string
      */
@@ -888,15 +845,15 @@ class Template extends Controller
 
     public function renderScript($position = 'footer')
     {
-        $lnEnd  = "\n";
-        $tab    = '';
-        $html   = '';
+        $lnEnd = "\n";
+        $tab   = '';
+        $html  = '';
 
         // Generate script file links
         if (is_array($this->_scripts[$position])) {
             foreach ($this->_scripts[$position] as $strSrc => $strAttr) {
                 $html .= $tab.'<script type="'.$strAttr['mime'].'" src="'.$this->format($strSrc).'"';
-                if ($temp =  Utility::parseAttributes($strAttr['attribs'])) {
+                if ($temp = Utility::parseAttributes($strAttr['attribs'])) {
                     $html .= ' '.$temp;
                 }
                 $html .= '></script>'.$lnEnd;
@@ -944,7 +901,6 @@ class Template extends Controller
     /**
      * Render and output the document template.
      *
-     * @access public
      *
      * @param string $_template The template folder
      * @param string $file      | optional template file
@@ -967,7 +923,7 @@ class Template extends Controller
         $template = '';
         foreach ($files as $file) {
             if (file_exists($file)) {
-                $template =  $file;
+                $template = $file;
                 break;
             }
         }
@@ -1010,7 +966,7 @@ class Template extends Controller
         }
 
         // default allow to every one
-        $allowed   = $this->userinfo->isAllowed($this->option, $this->view, $this->task);
+        $allowed = $this->userinfo->isAllowed($this->option, $this->view, $this->task);
 
         if (!$allowed && $this->is_ajax_request) {
             if ($this->type == 'html' || $this->format = 'html') {
@@ -1024,7 +980,7 @@ class Template extends Controller
 
         //for gusets
         if (!$allowed && !$this->is_user_logged_in) {
-            $link   = 'index.php?option=com_members&view=login';
+            $link = 'index.php?option=com_members&view=login';
             Utility::redirect(Router::link($link));
 
             return false;
@@ -1075,7 +1031,7 @@ class Template extends Controller
         if ($this->type == 'captcha') {
             //If the type for request is captcha server it.
             App::uses('Securimage', 'library/Utility');
-            $captcha     = new Securimage();
+            $captcha = new Securimage();
             $captcha->show();
 
             return true;
@@ -1143,14 +1099,13 @@ class Template extends Controller
             }
         }
 
-        $view_file  = _TMP_SYSTEM.'system'.DS.'ajax'.$this->ext;
+        $view_file = _TMP_SYSTEM.'system'.DS.'ajax'.$this->ext;
         $this->render($view_file);
     }
 
     /**
      * Parse a document template.
      *
-     * @access public
      *
      * @param string $data The data too parse
      *
@@ -1191,14 +1146,14 @@ class Template extends Controller
 
             $matche = [];
 
-            for ($i = 0; $i < $count; $i++) {
+            for ($i = 0; $i < $count; ++$i) {
                 $attribs = $this->parseAttributes($matches[2][$i]);
                 $type    = $matches[1][$i];
 
                 $name        = isset($attribs['name']) ? $attribs['name'] : null;
                 $replace[$i] = $this->getBuffer($type, $name, $attribs);
 
-                $matche[$i]   = '<speed:include type="'.$type.'" '.$matches[2][$i].'/>';
+                $matche[$i] = '<speed:include type="'.$type.'" '.$matches[2][$i].'/>';
             }
 
             $data = str_replace($matche, $replace, $data);
@@ -1210,7 +1165,6 @@ class Template extends Controller
     /**
      * Get the contents of a document include.
      *
-     * @access public
      *
      * @param string $type    The type of renderer
      * @param string $name    The name of the element to render
@@ -1228,7 +1182,7 @@ class Template extends Controller
         $func = 'render'.ucfirst($type);
         ob_start();
         echo $this->$func($name, $attribs);
-        $result =   ob_get_contents();
+        $result = ob_get_contents();
         ob_end_clean();
 
         return $result;
@@ -1298,11 +1252,11 @@ class Template extends Controller
             }
 
             if ($app['minify_css']) {
-                $header  = $minify->minifyStyles($header);
+                $header = $minify->minifyStyles($header);
             }
 
             if ($app['minify_js']) {
-                $header  = $minify->minifyScript($header, ['header' => true]);
+                $header = $minify->minifyScript($header, ['header' => true]);
             }
         }
 
@@ -1320,11 +1274,11 @@ class Template extends Controller
             }
 
             if ($app['minify_css']) {
-                $footer  = $minify->minifyStyles($footer);
+                $footer = $minify->minifyStyles($footer);
             }
 
             if ($app['minify_js']) {
-                $footer  = $minify->minifyScript($footer);
+                $footer = $minify->minifyScript($footer);
             }
         }
 
@@ -1341,15 +1295,15 @@ class Template extends Controller
     public function parseAttributes($string)
     {
         //Initialize variables
-        $attr       = [];
-        $retarray   = [];
+        $attr     = [];
+        $retarray = [];
 
         // Lets grab all the key/value pairs using a regular expression
         preg_match_all('/([\w:-]+)[\s]?=[\s]?"([^"]*)"/i', $string, $attr);
 
         if (is_array($attr)) {
             $numPairs = count($attr[1]);
-            for ($i = 0; $i < $numPairs; $i++) {
+            for ($i = 0; $i < $numPairs; ++$i) {
                 $retarray[$attr[1][$i]] = $attr[2][$i];
             }
         }
