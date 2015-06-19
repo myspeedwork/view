@@ -12,6 +12,7 @@ namespace Speedwork\View;
 
 use Speedwork\Config\Configure;
 use Speedwork\Core\Application;
+use Speedwork\Core\Controller;
 use Speedwork\Core\Registry;
 use Speedwork\Util\Router;
 use Speedwork\Util\Utility;
@@ -21,145 +22,149 @@ use Speedwork\Util\Utility;
  */
 class Template extends Controller
 {
-    public $_footer = [];
-    public $_header = [];
+    protected $_footer = [];
+    protected $_header = [];
 
-    public $breadcrumbs     = [];
-    public $is_ajax_request = false;
-    public $_device         = 'computer';
-    public $url             = _URL;
+    protected $breadcrumbs     = [];
+    protected $is_ajax_request = false;
+    protected $_device         = 'computer';
+    protected $url             = _URL;
 
     /**
      * File extension. Defaults to template ".tpl".
      *
      * @var string
      */
-    public $ext = '.tpl';
+    protected $ext = '.tpl';
 
     /**
      * Document title.
      *
      * @var string
      */
-    private $_title = '';
+    protected $_title = '';
 
     /**
      * Document description.
      *
      * @var string
      */
-    private $_description = '';
+    protected $_description = '';
 
     /**
      * Document description.
      *
      * @var string
      */
-    private $_keywords = '';
+    protected $_keywords = '';
 
     /**
      *  Array of linked links.
      *
      * @var array
      */
-    private $_links = [];
+    protected $_links = [];
 
     /**
      * Document base URL.
      *
      * @var string
      */
-    private $_base = '';
+    protected $_base = '';
 
     /**
      * Document base URL.
      *
      * @var string
      */
-    private $_basetarget = '_self';
+    protected $_basetarget = '_self';
 
     /**
      * Array of linked scripts.
      *
      * @var array
      */
-    private $_scripts = [];
+    protected $_scripts = [];
 
     /**
      * Array of scripts placed in the header.
      *
      * @var array
      */
-    private $_script = [];
+    protected $_script = [];
 
     /**
      * Array of linked style sheets.
      *
      * @var array
      */
-    private $_styleSheets = [];
+    protected $_styleSheets = [];
 
     /**
      * Array of included style declarations.
      *
      * @var array
      */
-    private $_style = [];
+    protected $_style = [];
 
     /**
      * Array of meta tags.
      *
      * @var array
      */
-    private $_metaTags = [];
+    protected $_metaTags = [];
 
-    private $_custom = [];
+    protected $_custom = [];
     /**
      * Contains the document language setting.
      *
      * @var string
      */
-    private $_language = 'en';
+    protected $_language = 'en';
 
     /**
      * Contains the document direction setting.
      *
      * @var string
      */
-    private $_direction = 'ltr';
+    protected $_direction = 'ltr';
 
-     /**
-      * Document generator.
-      *
-      * @var     string
-      */
-     private $_generator = 'Speedwork';
+    /**
+     * Document generator.
+     *
+     * @var string
+     */
+    protected $_generator = 'Speedwork';
 
     /**
      * Contains the character encoding string.
      *
      * @var string
      */
-    private $_charset = 'utf-8';
+    protected $_charset = 'utf-8';
 
     /**
      * Document mime type.
      *
      * @var string
      */
-    private $_mime = 'text/html';
+    protected $_mime = 'text/html';
 
     /**
      * set the full of the script or styles.
      *
      * @var string
      */
-    public static $path;
+    protected $path;
+    protected $_author       = '';
+    protected $_copyright    = '';
+    protected $_robots       = 'index,follow';
+    protected $_cachecontrol = 'max-age=30';
 
-    public $_author       = '';
-    public $_copyright    = '';
-    public $_robots       = 'index,follow';
-    public $_cachecontrol = 'max-age=30';
+    public function setPath($path)
+    {
+        $this->path = $path;
+    }
 
     /**
      * Add breadCrumb item to breadCrumb.
@@ -328,7 +333,7 @@ class Template extends Controller
      */
     public function addScript($filename, $attribs = [], $type = 'text/javascript')
     {
-        $url = self::$path.$filename;
+        $url = $this->path.$filename;
         self::addScriptUrl($url, $attribs, $type);
 
         return $this;
@@ -343,7 +348,7 @@ class Template extends Controller
      */
     public function addStyleSheet($filename, $attribs = [], $media = null, $type = 'text/css')
     {
-        $url = self::$path.$filename;
+        $url = $this->path.$filename;
         self::addStyleSheetUrl($url, $attribs, $media, $type);
 
         return $this;
