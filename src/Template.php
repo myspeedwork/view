@@ -3,7 +3,7 @@
 /**
  * This file is part of the Speedwork package.
  *
- * (c) 2s Technologies <info@2stech.com>
+ * (c) 2s Technologies <info@2stechno.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,7 +12,7 @@ namespace Speedwork\View;
 
 use Speedwork\Config\Configure;
 use Speedwork\Core\Application;
-use Speedwork\Core\Controller;
+use Speedwork\Core\Di;
 use Speedwork\Core\Registry;
 use Speedwork\Util\Router;
 use Speedwork\Util\Utility;
@@ -20,7 +20,7 @@ use Speedwork\Util\Utility;
 /**
  * @author sankar <sankar.suda@gmail.com>
  */
-class Template extends Controller
+class Template extends Di
 {
     protected $_footer = [];
     protected $_header = [];
@@ -958,10 +958,10 @@ class Template extends Controller
     private function onBeforeRenderTemplate()
     {
         if ($this->get['allowme']) {
-            $_SESSION['allowme'] = $this->get['allowme'];
+            $this->session->set('allowme', $this->get['allowme']);
         }
 
-        $allow = $_SESSION['allowme'];
+        $allow = $this->session->get('allowme');
         $key   = Configure::read('offline.key');
         //check whether this site is in offline
         if (Configure::read('offline.is_offline') && (empty($allow) || $allow != $key)) {
@@ -1034,8 +1034,6 @@ class Template extends Controller
         }
 
         if ($this->type == 'captcha') {
-            //If the type for request is captcha server it.
-            App::uses('Securimage', 'library/Utility');
             $captcha = new Securimage();
             $captcha->show();
 
@@ -1066,8 +1064,7 @@ class Template extends Controller
 
             if (in_array($this->type, $formats) || in_array($this->format, $formats)) {
                 if ($this->type == 'module') {
-                    $opts     = ['showtitle' => false];
-                    $response = $this->application->module($this->option, $this->view, $opts);
+                    $response = $this->application->loadModuleController($this->option, $this->view);
                 } else {
                     $response = $this->application->loadController($this->option, $this->view);
                 }
