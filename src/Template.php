@@ -986,7 +986,7 @@ class Template extends Di
         //for gusets
         if (!$allowed && !$this->is_user_logged_in) {
             $link = 'index.php?option=com_members&view=login';
-            Utility::redirect(Router::link($link));
+            $this->redirect(Router::link($link));
 
             return false;
         }
@@ -994,7 +994,7 @@ class Template extends Di
         //for already loggedin users
         if (!$allowed && $this->is_user_logged_in) {
             echo '<div class="info_msg_err">Your don\'t have sufficient permissions.. </div>';
-            Utility::redirect(Router::link('index.php?option=errors&view=nopermission'));
+            $this->redirect(Router::link('index.php?option=errors&view=nopermission'));
 
             return false;
         }

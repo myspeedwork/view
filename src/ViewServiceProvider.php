@@ -22,8 +22,8 @@ use Gigablah\Silex\View\Engine\TwigEngine;
 use Gigablah\Silex\View\EventListener\ArrayToViewListener;
 use Gigablah\Silex\View\Logger\ViewLogger;
 use Gigablah\Silex\View\Template\TemplateResolver;
-use Pimple\Container;
-use Pimple\ServiceProviderInterface;
+use Speedwork\Core\Container;
+use Speedwork\Core\ServiceProvider;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
@@ -31,7 +31,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
  *
  * @author sankar <sankar.suda@gmail.com>
  */
-class ViewServiceProvider implements ServiceProviderInterface
+class ViewServiceProvider implements ServiceProvider
 {
     public function register(Container $app)
     {
