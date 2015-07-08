@@ -18,5 +18,6 @@
     "autoload" : {
         "psr-4": { "Speedwork\\View\\": "src" }
     },
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "preferred-install": "dist"
 }
