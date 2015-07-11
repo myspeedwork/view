@@ -676,8 +676,8 @@ class Template extends Di
     {
         //check that is ajax request
         if (strtolower($this->data['REQUESTED_WITH']) == 'xmlhttprequest'
-                                || strtolower($this->server['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'
-                                || ($this->type) || ($this->tpl) || ($this->format)) {
+                || strtolower($this->server['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'
+                || ($this->type) || ($this->tpl) || ($this->format)) {
             $this->is_ajax_request = true;
             Registry::set('is_ajax_request', true);
             $this->assign('is_ajax_request', $this->is_ajax_request);
@@ -899,7 +899,7 @@ class Template extends Di
     public function render($file)
     {
         if (is_file($file) && file_exists($file)) {
-            $this->tengine->display($file);
+            $this->get('engine')->display($file);
         }
     }
 
@@ -935,7 +935,7 @@ class Template extends Di
 
         $tpl = true;
         if ($tpl) {
-            $output = $this->tengine->fetch($template);
+            $output = $this->get('engine')->fetch($template);
         } else {
             ob_start();
             include $template;
@@ -971,7 +971,7 @@ class Template extends Di
         }
 
         // default allow to every one
-        $allowed = $this->userinfo->isAllowed($this->option, $this->view, $this->task);
+        $allowed = $this->acl->isAllowed($this->option, $this->view, $this->task);
 
         if (!$allowed && $this->is_ajax_request) {
             if ($this->type == 'html' || $this->format = 'html') {

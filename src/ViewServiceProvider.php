@@ -24,7 +24,6 @@ use Gigablah\Silex\View\Logger\ViewLogger;
 use Gigablah\Silex\View\Template\TemplateResolver;
 use Speedwork\Core\Container;
 use Speedwork\Core\ServiceProvider;
-use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * ViewServiceProvider registers the view factory for wrapping responses with views.
@@ -114,10 +113,5 @@ class ViewServiceProvider implements ServiceProvider
 
             return new ViewLogger($app['logger'], $stopwatch);
         };
-    }
-
-    public function boot(Application $app)
-    {
-        $app['dispatcher']->addListener(KernelEvents::VIEW, [$app['view.array_to_view_listener'], 'onKernelView'], $app['view.listener_priority']);
     }
 }
