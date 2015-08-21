@@ -8,13 +8,13 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace Speedwork\View;
 
 use Speedwork\Config\Configure;
 use Speedwork\Core\Application;
 use Speedwork\Core\Di;
 use Speedwork\Core\Registry;
-use Speedwork\Util\Router;
 use Speedwork\Util\Utility;
 
 /**
@@ -201,7 +201,7 @@ class Template extends Di
                 $href = '';
                 if ($file['href']) {
                     $href = (strpos($file['href'], 'link:') !== false) ?
-                                        Router::link(str_replace('link:', '', $file['href'])) : $file['href'];
+                                        $this->link(str_replace('link:', '', $file['href'])) : $file['href'];
                 }
 
                 $files[] = '<span>'.(($href) ? ' <a href="'.$href.'"> ' : '').$file['text'].(($href) ? '</a>' : ' ').'</span>';
@@ -224,10 +224,9 @@ class Template extends Di
      */
     public function addComponentScript($component, $file, $attr = [])
     {
-        $component = Utility::sanitizeOption($component);
-        $url       = Application::Url($component);
-        $path      = $url.'components/'.$component.'/assets/'.$file;
-        self::addScriptUrl($path, $attr);
+        $url  = $this->application->url($component);
+        $path = $url.'components/'.$component.'/assets/'.$file;
+        $this->addScriptUrl($path, $attr);
 
         return $this;
     }
@@ -241,9 +240,9 @@ class Template extends Di
      **/
     public function addModuleScript($module, $file, $attr = [])
     {
-        $url  = Application::Url($module, 'module');
+        $url  = $this->application->url($module, 'module');
         $path = $url.'modules/'.$module.'/assets/'.$file;
-        self::addScriptUrl($path, $attr);
+        $this->addScriptUrl($path, $attr);
 
         return $this;
     }
@@ -263,7 +262,7 @@ class Template extends Di
             $path = _PUBLIC.'static/';
         }
         $path = (!$path) ? _TMP_URL.'js/' : $path;
-        self::addScriptUrl($path.$filename, $attr);
+        $this->addScriptUrl($path.$filename, $attr);
 
         return $this;
     }
@@ -285,7 +284,7 @@ class Template extends Di
 
         $path = (!$path) ? _TMP_URL.'css/' : $path;
         $path = $path.$filename;
-        self::addStyleSheetUrl($path, $attribs);
+        $this->addStyleSheetUrl($path, $attribs);
 
         return $this;
     }
@@ -334,7 +333,7 @@ class Template extends Di
     public function addScript($filename, $attribs = [], $type = 'text/javascript')
     {
         $url = $this->path.$filename;
-        self::addScriptUrl($url, $attribs, $type);
+        $this->addScriptUrl($url, $attribs, $type);
 
         return $this;
     }
@@ -349,7 +348,7 @@ class Template extends Di
     public function addStyleSheet($filename, $attribs = [], $media = null, $type = 'text/css')
     {
         $url = $this->path.$filename;
-        self::addStyleSheetUrl($url, $attribs, $media, $type);
+        $this->addStyleSheetUrl($url, $attribs, $media, $type);
 
         return $this;
     }
@@ -675,7 +674,8 @@ class Template extends Di
     public function beforeRender()
     {
         //check that is ajax request
-        if (strtolower($this->data['REQUESTED_WITH']) == 'xmlhttprequest'
+        if ($this->data['_request'] == 'iframe'
+                || $this->data['_request'] == 'ajax'
                 || strtolower($this->server['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'
                 || ($this->type) || ($this->tpl) || ($this->format)) {
             $this->is_ajax_request = true;
@@ -683,7 +683,7 @@ class Template extends Di
             $this->assign('is_ajax_request', $this->is_ajax_request);
         }
 
-        if (strtolower($this->request['REQUESTED_WITH']) == 'xmlhttprequest') {
+        if ($this->data['_request'] == 'iframe') {
             Registry::set('is_iframe_request', true);
             $this->assign('is_iframe_request', true);
         }
@@ -702,15 +702,18 @@ class Template extends Di
         $this->setKeywords(trim($app['keywords']));
         $this->setDescription(trim($app['descn']));
 
+        $seo = Configure::read('seo.seo.enable');
+
         $prefix = Registry::get('url_prefix');
         //define global javascript var
         $html = '<script type="text/javascript">';
-        $html .= 'var is_user_logged_in = '.(($this->is_user_logged_in) ? ' true' : ' false').';';
+        $html .= 'var is_user_logged_in = '.(($this->get('is_user_logged_in')) ? 'true' : 'false').';';
         $html .= 'var url = "'.$this->format(_URL).'";';
         $html .= 'var base_url = "'.$this->format(rtrim(_URL.$prefix, '/')).'";';
         $html .= 'var public_url = "'._PUBLIC.'";';
         $html .= 'var theme_url = "'._TMP_URL.'";';
         $html .= 'var image_url = "'._IMG_URL.'";';
+        $html .= 'var seo_urls = '.(($seo) ? 'true' : 'false').';';
         $html .= 'var sys_url = "'.$this->format(_SYSURL).'";';
         $html .= 'var device = "'.$this->_device.'";';
         $html .= 'var _gaq = _gaq ||[];';
@@ -718,19 +721,18 @@ class Template extends Di
         $html .= 'var serverTime = '.(time() * 1000).';';
         $html .= '</script>';
 
-        self::addCustomTag($html, 'header');
+        $this->addCustomTag($html, 'header');
 
         $prefix = '?v=1905';
 
-        self::addStyleSheetUrl(_SYSURL.'public/templates/system/css/core.css'.$prefix);
+        $this->addStyleSheetUrl(_SYSURL.'public/templates/system/css/core.css'.$prefix);
 
-        self::addScriptUrl(_SYSURL.'public/templates/system/js/jquery.js'.$prefix, ['position' => 'header']);
-        self::addScriptUrl(_SYSURL.'public/templates/system/js/migrate.js'.$prefix, ['position' => 'header']);
-
-        self::addScriptUrl(_SYSURL.'public/templates/system/js/plugins.js'.$prefix);
-        self::addScriptUrl(_SYSURL.'public/templates/system/js/plugins.min.js'.$prefix);
-        self::addScriptUrl(_SYSURL.'public/templates/system/js/core.js'.$prefix);
-        self::addScriptUrl(_SYSURL.'public/templates/system/js/system.js'.$prefix);
+        $this->addScriptUrl(_SYSURL.'public/templates/system/js/jquery.js'.$prefix, ['position' => 'header']);
+        //$this->addScriptUrl(_SYSURL.'public/templates/system/js/migrate.js'.$prefix, ['position' => 'header']);
+        $this->addScriptUrl(_SYSURL.'public/templates/system/js/plugins.js'.$prefix);
+        $this->addScriptUrl(_SYSURL.'public/templates/system/js/plugins.min.js'.$prefix);
+        $this->addScriptUrl(_SYSURL.'public/templates/system/js/core.js'.$prefix);
+        $this->addScriptUrl(_SYSURL.'public/templates/system/js/system.js'.$prefix);
     }
 
     /**
@@ -755,27 +757,29 @@ class Template extends Di
             $html  .= 'target="'.$this->_basetarget.'"'.$tagEnd.$lnEnd;
         }
 
-        $append = Configure::read('app.append_sitename_title');
+        $app = Configure::read('app');
+
+        $append = $app['append_sitename_title'];
         $title  = htmlspecialchars($this->getTitle());
 
         if ($append == 'before') {
-            $title = Configure::read('app.name').' | '.$title;
+            $title = $app['name'].' | '.$title;
         }
 
         if ($append == 'after') {
-            $title = $title.' | '.Configure::read('app.name');
+            $title = $title.' | '.$app['name'];
         }
 
         $html .= $tab.'<title>'.$title.'</title>'.$lnEnd;
         $html .= $tab.'<meta name="description" content="'.htmlspecialchars($this->getDescription()).'"'.$tagEnd.$lnEnd;
         $html .= $tab.'<meta name="keywords" content="'.htmlspecialchars($this->getKeywords()).'" '.$tagEnd.$lnEnd;
-        $html .= $tab.'<meta http-equiv="cache-control" content="'.$this->_cachecontrol.'"'.$tagEnd.$lnEnd;
-        $html .= $tab.'<meta http-equiv="Content-Type" content="'.$this->_mime.'; charset='.$this->getCharset().'"'.$tagEnd.$lnEnd;
         $html .= $tab.'<meta name="generator" content="'.$this->_generator.'"'.$tagEnd.$lnEnd;
         $html .= $tab.'<meta name="author" content="'.$this->_author.'" '.$tagEnd.$lnEnd;
         $html .= $tab.'<meta name="copyright" content="'.$this->_copyright.'"'.$tagEnd.$lnEnd;
         $html .= $tab.'<meta name="robots" content="'.$this->_robots.'"'.$tagEnd.$lnEnd;
-
+        $html .= $tab.'<meta name="csrf-token" content="'.$this->get('token').'"'.$tagEnd.$lnEnd;
+        $html .= $tab.'<meta http-equiv="cache-control" content="'.$this->_cachecontrol.'"'.$tagEnd.$lnEnd;
+        $html .= $tab.'<meta http-equiv="Content-Type" content="'.$this->_mime.'; charset='.$this->getCharset().'"'.$tagEnd.$lnEnd;
         // Generate META tags (needs to happen as early as possible in the head)
         foreach ($this->_metaTags as $type => $tag) {
             foreach ($tag as $name => $content) {
@@ -933,16 +937,7 @@ class Template extends Di
             }
         }
 
-        $tpl = true;
-        if ($tpl) {
-            $output = $this->get('engine')->fetch($template);
-        } else {
-            ob_start();
-            include $template;
-            $output = ob_get_contents();
-            ob_end_clean();
-        }
-        echo $this->parseTemplate($output);
+        echo $this->parseTemplate($this->get('engine')->fetch($template));
     }
 
     public function renderTemplate($file = '')
@@ -974,10 +969,16 @@ class Template extends Di
         $allowed = $this->acl->isAllowed($this->option, $this->view, $this->task);
 
         if (!$allowed && $this->is_ajax_request) {
-            if ($this->type == 'html' || $this->format = 'html') {
+            if ($this->type == 'html' || $this->format == 'html') {
                 echo  'Your don\'t have sufficient permissions..';
             } else {
-                echo json_encode(['status' => 'ERROR', 'message' => 'Your don\'t have sufficient permissions..']);
+                $status            = [];
+                $status['status']  = 'INFO';
+                $status['message'] = 'Your don\'t have sufficient permissions..';
+                if (!$this->is_user_logged_in) {
+                    $status['login'] = true;
+                }
+                echo json_encode($status);
             }
 
             return false;
@@ -985,8 +986,12 @@ class Template extends Di
 
         //for gusets
         if (!$allowed && !$this->is_user_logged_in) {
-            $link = 'index.php?option=com_members&view=login';
-            $this->redirect(Router::link($link));
+            $link = Configure::read('members.guest');
+            if (empty($link)) {
+                $link = 'index.php?option=members&view=login';
+            }
+
+            $this->redirect($link);
 
             return false;
         }
@@ -994,7 +999,7 @@ class Template extends Di
         //for already loggedin users
         if (!$allowed && $this->is_user_logged_in) {
             echo '<div class="info_msg_err">Your don\'t have sufficient permissions.. </div>';
-            $this->redirect(Router::link('index.php?option=errors&view=nopermission'));
+            $this->redirect('index.php?option=errors&view=denied');
 
             return false;
         }
@@ -1015,10 +1020,6 @@ class Template extends Di
 
         if ($this->format == 'js' || $this->format == 'script') {
             header('Content-Type: application/javascript');
-        }
-
-        if ($this->format == 'jsonp') {
-            header('Content-Type: application/json');
         }
 
         if ($this->format == 'xml') {
@@ -1085,6 +1086,7 @@ class Template extends Di
                             echo json_encode($response);
                             echo '</textarea>';
                         } else {
+                            header('Content-Type: application/json');
                             echo json_encode($response);
                         }
                     }
@@ -1174,7 +1176,7 @@ class Template extends Di
      *
      * @return The output of the renderer
      */
-    protected function getBuffer($type = null, $name = null, $attribs = [])
+    public function getBuffer($type = null, $name = null, $attribs = [])
     {
         $result = null;
         if (empty($type)) {
@@ -1233,14 +1235,8 @@ class Template extends Di
         $view   = ($attribs['view']) ? $attribs['view'] : $this->view;
 
         unset($attribs['name'], $attribs['view']);
-        $response = $this->application->loadController($option, $view, $attribs);
-        if (is_array($response)) {
-            foreach ($response as $key => $value) {
-                $this->assign($key, $value);
-            }
-        }
 
-        return $this->application->loadView($option, $view);
+        return $this->application->component($option, $view, $attribs);
     }
 
     protected function renderHeader()
@@ -1311,5 +1307,18 @@ class Template extends Di
         }
 
         return $retarray;
+    }
+
+    protected function geneareAttributes($data = [])
+    {
+        if (!is_array($data)) {
+            return;
+        }
+
+        foreach ($data as $key => $value) {
+            $attr .= $key.'="'.$value.'" ';
+        }
+
+        return $attr;
     }
 }
