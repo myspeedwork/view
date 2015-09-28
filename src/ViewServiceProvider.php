@@ -8,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace Speedwork\View;
 
 use Gigablah\Silex\View\Engine\AuraEngine;
@@ -22,8 +23,8 @@ use Gigablah\Silex\View\Engine\TwigEngine;
 use Gigablah\Silex\View\EventListener\ArrayToViewListener;
 use Gigablah\Silex\View\Logger\ViewLogger;
 use Gigablah\Silex\View\Template\TemplateResolver;
-use Speedwork\Core\Container;
-use Speedwork\Core\ServiceProvider;
+use Speedwork\Container\Container;
+use Speedwork\Container\ServiceProvider;
 
 /**
  * ViewServiceProvider registers the view factory for wrapping responses with views.

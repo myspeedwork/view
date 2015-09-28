@@ -25,10 +25,9 @@ class Template extends Di
     protected $_footer = [];
     protected $_header = [];
 
-    protected $breadcrumbs     = [];
-    protected $is_ajax_request = false;
-    protected $_device         = 'computer';
-    protected $url             = _URL;
+    protected $breadcrumbs = [];
+    protected $_device     = 'computer';
+    protected $url         = _URL;
 
     /**
      * File extension. Defaults to template ".tpl".
@@ -224,7 +223,7 @@ class Template extends Di
      */
     public function addComponentScript($component, $file, $attr = [])
     {
-        $url  = $this->application->url($component);
+        $url  = $this->get('resolver')->url($component);
         $path = $url.'components/'.$component.'/assets/'.$file;
         $this->addScriptUrl($path, $attr);
 
@@ -240,7 +239,7 @@ class Template extends Di
      **/
     public function addModuleScript($module, $file, $attr = [])
     {
-        $url  = $this->application->url($module, 'module');
+        $url  = $this->get('resolver')->url($module, 'module');
         $path = $url.'modules/'.$module.'/assets/'.$file;
         $this->addScriptUrl($path, $attr);
 
@@ -259,7 +258,7 @@ class Template extends Di
     public function script($filename, $path = '', $attr = [])
     {
         if ($path == 'bower') {
-            $path = _PUBLIC.'static/';
+            $path = _STATIC;
         }
         $path = (!$path) ? _TMP_URL.'js/' : $path;
         $this->addScriptUrl($path.$filename, $attr);
@@ -279,7 +278,7 @@ class Template extends Di
     public function styleSheet($filename, $path = '', $attribs = [])
     {
         if ($path == 'bower') {
-            $path = _PUBLIC.'static/';
+            $path = _STATIC;
         }
 
         $path = (!$path) ? _TMP_URL.'css/' : $path;
@@ -673,21 +672,6 @@ class Template extends Di
 
     public function beforeRender()
     {
-        //check that is ajax request
-        if ($this->data['_request'] == 'iframe'
-                || $this->data['_request'] == 'ajax'
-                || strtolower($this->server['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'
-                || ($this->type) || ($this->tpl) || ($this->format)) {
-            $this->is_ajax_request = true;
-            Registry::set('is_ajax_request', true);
-            $this->assign('is_ajax_request', $this->is_ajax_request);
-        }
-
-        if ($this->data['_request'] == 'iframe') {
-            Registry::set('is_iframe_request', true);
-            $this->assign('is_iframe_request', true);
-        }
-
         //set device
         $device = Configure::read('device');
         if ($device['name']) {
@@ -712,7 +696,9 @@ class Template extends Di
         $html .= 'var base_url = "'.$this->format(rtrim(_URL.$prefix, '/')).'";';
         $html .= 'var public_url = "'._PUBLIC.'";';
         $html .= 'var theme_url = "'._TMP_URL.'";';
-        $html .= 'var image_url = "'._IMG_URL.'";';
+        $html .= 'var image_url = "'._UPLOAD.'";';
+        $html .= 'var media_url = "'._MEDIA.'";';
+        $html .= 'var static_url = "'._STATIC.'";';
         $html .= 'var seo_urls = '.(($seo) ? 'true' : 'false').';';
         $html .= 'var sys_url = "'.$this->format(_SYSURL).'";';
         $html .= 'var device = "'.$this->_device.'";';
@@ -725,11 +711,11 @@ class Template extends Di
 
         $prefix = '?v=1905';
 
+        $this->script('jquery/dist/jquery.min.js', 'bower', ['position' => 'header']);
+
         $this->addStyleSheetUrl(_SYSURL.'public/templates/system/css/core.css'.$prefix);
 
-        $this->addScriptUrl(_SYSURL.'public/templates/system/js/jquery.js'.$prefix, ['position' => 'header']);
-        //$this->addScriptUrl(_SYSURL.'public/templates/system/js/migrate.js'.$prefix, ['position' => 'header']);
-        $this->addScriptUrl(_SYSURL.'public/templates/system/js/plugins.js'.$prefix);
+        $this->addScriptUrl(_SYSURL.'public/templates/system/js/dev/form.js'.$prefix);
         $this->addScriptUrl(_SYSURL.'public/templates/system/js/plugins.min.js'.$prefix);
         $this->addScriptUrl(_SYSURL.'public/templates/system/js/core.js'.$prefix);
         $this->addScriptUrl(_SYSURL.'public/templates/system/js/system.js'.$prefix);
@@ -938,20 +924,29 @@ class Template extends Di
         }
 
         echo $this->parseTemplate($this->get('engine')->fetch($template));
+
+        return true;
     }
 
     public function renderTemplate($file = '')
     {
-        $res = $this->onBeforeRenderTemplate();
-        if (!$res) {
-            return false;
-        }
-        $this->assign('is_ajax_request', $this->is_ajax_request);
-        $this->fetchTemplate($file);
+        $this->onBeforeRenderTemplate($file);
     }
 
-    private function onBeforeRenderTemplate()
+    private function onBeforeRenderTemplate($file = '')
     {
+        //check that is ajax request
+        if ($this->data['_request'] == 'iframe'
+                || $this->data['_request'] == 'ajax'
+                || strtolower($this->server['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'
+                || ($this->type) || ($this->tpl) || ($this->format)) {
+            $this->sets('is_ajax_request', true);
+        }
+
+        if ($this->data['_request'] == 'iframe') {
+            $this->sets('is_iframe_request', true);
+        }
+
         if ($this->get['allowme']) {
             $this->session->set('allowme', $this->get['allowme']);
         }
@@ -988,7 +983,7 @@ class Template extends Di
         if (!$allowed && !$this->is_user_logged_in) {
             $link = Configure::read('members.guest');
             if (empty($link)) {
-                $link = 'index.php?option=members&view=login';
+                $link = 'members/login';
             }
 
             $this->redirect($link);
@@ -998,8 +993,8 @@ class Template extends Di
 
         //for already loggedin users
         if (!$allowed && $this->is_user_logged_in) {
-            echo '<div class="info_msg_err">Your don\'t have sufficient permissions.. </div>';
-            $this->redirect('index.php?option=errors&view=denied');
+            echo '<div class="alert alert-danger">Your don\'t have sufficient permissions.. </div>';
+            $this->redirect('errors/denied');
 
             return false;
         }
@@ -1011,7 +1006,7 @@ class Template extends Di
             return false;
         }
 
-        return true;
+        return $this->fetchTemplate($file);
     }
 
     public function renderAjax()
@@ -1027,11 +1022,11 @@ class Template extends Di
         }
 
         if ($this->type == 'module' && empty($this->format)) {
-            return $this->application->module($this->option, $this->view);
+            return $this->get('resolver')->module($this->option, $this->view);
         }
 
         if ($this->type == 'widget') {
-            return $this->application->widget($this->option, [], true);
+            return $this->get('resolver')->widget($this->option, [], true);
         }
 
         if ($this->type == 'captcha') {
@@ -1047,15 +1042,6 @@ class Template extends Di
             return $this->fetchTemplate($file);
         }
 
-        if ($this->type == 'page') {
-            $response         = $this->application->loadController($this->option, $this->view);
-            $response['html'] = $this->application->loadView($this->option, $this->view);
-
-            echo json_encode($response);
-
-            return true;
-        }
-
         if (($this->type) || ($this->format) || ($this->tpl)) {
             if ((!$this->format)) {
                 $file = ($this->tpl) ? str_replace('..', '', $this->tpl) : 'component';
@@ -1065,9 +1051,9 @@ class Template extends Di
 
             if (in_array($this->type, $formats) || in_array($this->format, $formats)) {
                 if ($this->type == 'module') {
-                    $response = $this->application->loadModuleController($this->option, $this->view);
+                    $response = $this->get('resolver')->loadModuleController($this->option, $this->view);
                 } else {
-                    $response = $this->application->loadController($this->option, $this->view);
+                    $response = $this->get('resolver')->loadController($this->option, $this->view);
                 }
 
                 if ($this->format == 'json' || $this->format == 'jsonp') {
@@ -1075,36 +1061,29 @@ class Template extends Di
                         $response = $this->release('status');
                     }
 
-                    if ($response && is_array($response)) {
-                        $redirect = Registry::get('redirect');
+                    if (!is_array($response)) {
+                        $response = [];
+                    }
 
-                        if ($redirect) {
-                            $response['redirect'] = $redirect;
-                        }
-                        if ($this->is_iframe_request) {
-                            echo '<textarea>';
-                            echo json_encode($response);
-                            echo '</textarea>';
-                        } else {
-                            header('Content-Type: application/json');
-                            echo json_encode($response);
-                        }
+                    $redirect = $this->get('redirect');
+
+                    if ($redirect) {
+                        $response['redirect'] = $redirect;
+                    }
+
+                    if ($this->is_iframe_request) {
+                        echo '<textarea>';
+                        echo json_encode($response);
+                        echo '</textarea>';
+                    } else {
+                        header('Content-Type: application/json');
+                        echo json_encode($response);
                     }
                 }
             }
 
             return true;
         }
-
-        $response = $this->application->loadController($this->option, $this->view);
-        if (is_array($response)) {
-            foreach ($response as $key => $value) {
-                $this->assign($key, $value);
-            }
-        }
-
-        $view_file = _TMP_SYSTEM.'system'.DS.'ajax'.$this->ext;
-        $this->render($view_file);
     }
 
     /**
@@ -1178,10 +1157,7 @@ class Template extends Di
      */
     public function getBuffer($type = null, $name = null, $attribs = [])
     {
-        $result = null;
-        if (empty($type)) {
-            return [];
-        }
+        $type = (!empty($type)) ? $type : 'component';
 
         $func = 'render'.ucfirst($type);
         ob_start();
@@ -1194,7 +1170,7 @@ class Template extends Di
 
     protected function renderModule($name, $attribs)
     {
-        return $this->application->module($name, $attribs['view'], $attribs);
+        return $this->get('resolver')->module($name, $attribs['view'], $attribs);
     }
 
     protected function renderModules($position)
@@ -1203,7 +1179,7 @@ class Template extends Di
             return;
         }
 
-        return $this->application->modules($position);
+        return $this->get('resolver')->modules($position);
     }
 
     protected function renderPosition($position, $attribs = [])
@@ -1236,7 +1212,7 @@ class Template extends Di
 
         unset($attribs['name'], $attribs['view']);
 
-        return $this->application->component($option, $view, $attribs);
+        return $this->get('resolver')->component($option, $view, $attribs);
     }
 
     protected function renderHeader()
@@ -1246,7 +1222,7 @@ class Template extends Di
         if ($header) {
             $app = Configure::read('app');
             if ($app['minify_css'] || $app['minify_js']) {
-                $minify = $this->application->helper('minify');
+                $minify = $this->get('resolver')->helper('minify');
             }
 
             if ($app['minify_css']) {
@@ -1268,7 +1244,7 @@ class Template extends Di
         if ($footer) {
             $app = Configure::read('app');
             if ($app['minify_css'] || $app['minify_js']) {
-                $minify = $this->application->helper('minify');
+                $minify = $this->get('resolver')->helper('minify');
             }
 
             if ($app['minify_css']) {
