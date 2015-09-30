@@ -886,13 +886,6 @@ class Template extends Di
 
 /******************** ---RENDERING PROCESS ---*****************************************/
 
-    public function render($file)
-    {
-        if (is_file($file) && file_exists($file)) {
-            $this->get('engine')->display($file);
-        }
-    }
-
     /**
      * Render and output the document template.
      *
@@ -928,7 +921,7 @@ class Template extends Di
         return true;
     }
 
-    public function renderTemplate($file = '')
+    public function render($file = '')
     {
         $this->onBeforeRenderTemplate($file);
     }
