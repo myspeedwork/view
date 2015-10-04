@@ -3,7 +3,7 @@
 /**
  * This file is part of the Speedwork package.
  *
- * (c) 2s Technologies <info@2stechno.com>
+ * @link http://github.com/speedwork
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -258,7 +258,8 @@ class Template extends Di
     public function script($filename, $path = '', $attr = [])
     {
         if ($path == 'bower') {
-            $path = _STATIC;
+            $path             = _STATIC;
+            $attr['position'] = ($attr['position']) ? $attr['position'] : 'footer';
         }
         $path = (!$path) ? _TMP_URL.'js/' : $path;
         $this->addScriptUrl($path.$filename, $attr);
@@ -296,8 +297,9 @@ class Template extends Di
      */
     public function addScriptUrl($url, $attribs = [], $type = 'text/javascript')
     {
-        $position = ($attribs['position']) ? $attribs['position'] : 'footer';
+        $position = 'footer';
         if (is_array($attribs)) {
+            $position = ($attribs['position']) ? $attribs['position'] : $position;
             unset($attribs['position']);
         }
 
@@ -316,9 +318,14 @@ class Template extends Di
      */
     public function addStyleSheetUrl($url, $attribs = [], $media = null, $type = 'text/css')
     {
-        $this->_styleSheets[$url]['mime']    = $type;
-        $this->_styleSheets[$url]['media']   = $media;
-        $this->_styleSheets[$url]['attribs'] = $attribs;
+        $position = ($attribs['position']) ? $attribs['position'] : 'header';
+        if (is_array($attribs)) {
+            unset($attribs['position']);
+        }
+
+        $this->_styleSheets[$position][$url]['mime']    = $type;
+        $this->_styleSheets[$position][$url]['media']   = $media;
+        $this->_styleSheets[$position][$url]['attribs'] = $attribs;
 
         return $this;
     }
@@ -331,7 +338,16 @@ class Template extends Di
      */
     public function addScript($filename, $attribs = [], $type = 'text/javascript')
     {
-        $url = $this->path.$filename;
+        if (is_string($attribs)) {
+            if ($attribs == 'bower') {
+                $attribs = _STATIC;
+            }
+            $url     = $attribs.$filename;
+            $attribs = [];
+        } else {
+            $url = $this->path.$filename;
+        }
+
         $this->addScriptUrl($url, $attribs, $type);
 
         return $this;
@@ -375,7 +391,8 @@ class Template extends Di
      */
     public function addStyleDeclaration($content, $type = 'text/css')
     {
-        $this->_style[strtolower($type)] .= chr(13).$content."\n";
+        $position = ($options['position']) ? $options['position'] : 'header';
+        $this->_style[$position][strtolower($type)] .= chr(13).$content."\n";
 
         return $this;
     }
@@ -691,30 +708,27 @@ class Template extends Di
         $prefix = Registry::get('url_prefix');
         //define global javascript var
         $html = '<script type="text/javascript">';
-        $html .= 'var is_user_logged_in = '.(($this->get('is_user_logged_in')) ? 'true' : 'false').';';
-        $html .= 'var url = "'.$this->format(_URL).'";';
-        $html .= 'var base_url = "'.$this->format(rtrim(_URL.$prefix, '/')).'";';
-        $html .= 'var public_url = "'._PUBLIC.'";';
-        $html .= 'var theme_url = "'._TMP_URL.'";';
-        $html .= 'var image_url = "'._UPLOAD.'";';
-        $html .= 'var media_url = "'._MEDIA.'";';
-        $html .= 'var static_url = "'._STATIC.'";';
-        $html .= 'var seo_urls = '.(($seo) ? 'true' : 'false').';';
-        $html .= 'var sys_url = "'.$this->format(_SYSURL).'";';
-        $html .= 'var device = "'.$this->_device.'";';
-        $html .= 'var _gaq = _gaq ||[];';
-        $html .= 'var $_ = $_ || [];';
-        $html .= 'var serverTime = '.(time() * 1000).';';
+        $html .= '  var is_user_logged_in = '.(($this->get('is_user_logged_in')) ? 'true' : 'false').';';
+        $html .= '  var url = "'.$this->format(_URL).'";';
+        $html .= '  var base_url = "'.$this->format(rtrim(_URL.$prefix, '/')).'";';
+        $html .= '  var public_url = "'._PUBLIC.'";';
+        $html .= '  var theme_url = "'._TMP_URL.'";';
+        $html .= '  var image_url = "'._UPLOAD.'";';
+        $html .= '  var media_url = "'._MEDIA.'";';
+        $html .= '  var static_url = "'._STATIC.'";';
+        $html .= '  var seo_urls = '.(($seo) ? 'true' : 'false').';';
+        $html .= '  var sys_url = "'.$this->format(_SYSURL).'";';
+        $html .= '  var device = "'.$this->_device.'";';
+        $html .= '  var serverTime = '.(time() * 1000).';';
         $html .= '</script>';
 
         $this->addCustomTag($html, 'header');
 
         $prefix = '?v=1905';
 
-        $this->script('jquery/dist/jquery.min.js', 'bower', ['position' => 'header']);
-
         $this->addStyleSheetUrl(_SYSURL.'public/templates/system/css/core.css'.$prefix);
 
+        $this->script('jquery/dist/jquery.min.js', 'bower');
         $this->addScriptUrl(_SYSURL.'public/templates/system/js/dev/form.js'.$prefix);
         $this->addScriptUrl(_SYSURL.'public/templates/system/js/plugins.min.js'.$prefix);
         $this->addScriptUrl(_SYSURL.'public/templates/system/js/core.js'.$prefix);
@@ -733,12 +747,11 @@ class Template extends Di
 
         $lnEnd  = "\n";
         $tagEnd = ' />';
-        $tab    = '';
         $html   = '';
 
         // Generate base tag (need to happen first)
         if ($this->getBase() || $this->_basetarget) {
-            $html  .= $tab.'<base ';
+            $html  .= '<base ';
             $html  .= ($this->getBase()) ? 'href="'.$this->format($this->getBase()).'" ' : ' ';
             $html  .= 'target="'.$this->_basetarget.'"'.$tagEnd.$lnEnd;
         }
@@ -756,68 +769,35 @@ class Template extends Di
             $title = $title.' | '.$app['name'];
         }
 
-        $html .= $tab.'<title>'.$title.'</title>'.$lnEnd;
-        $html .= $tab.'<meta name="description" content="'.htmlspecialchars($this->getDescription()).'"'.$tagEnd.$lnEnd;
-        $html .= $tab.'<meta name="keywords" content="'.htmlspecialchars($this->getKeywords()).'" '.$tagEnd.$lnEnd;
-        $html .= $tab.'<meta name="generator" content="'.$this->_generator.'"'.$tagEnd.$lnEnd;
-        $html .= $tab.'<meta name="author" content="'.$this->_author.'" '.$tagEnd.$lnEnd;
-        $html .= $tab.'<meta name="copyright" content="'.$this->_copyright.'"'.$tagEnd.$lnEnd;
-        $html .= $tab.'<meta name="robots" content="'.$this->_robots.'"'.$tagEnd.$lnEnd;
-        $html .= $tab.'<meta name="csrf-token" content="'.$this->get('token').'"'.$tagEnd.$lnEnd;
-        $html .= $tab.'<meta http-equiv="cache-control" content="'.$this->_cachecontrol.'"'.$tagEnd.$lnEnd;
-        $html .= $tab.'<meta http-equiv="Content-Type" content="'.$this->_mime.'; charset='.$this->getCharset().'"'.$tagEnd.$lnEnd;
+        $html .= '<title>'.$title.'</title>'.$lnEnd;
+        $html .= '<meta name="description" content="'.htmlspecialchars($this->getDescription()).'"'.$tagEnd.$lnEnd;
+        $html .= '<meta name="keywords" content="'.htmlspecialchars($this->getKeywords()).'" '.$tagEnd.$lnEnd;
+        $html .= '<meta name="generator" content="'.$this->_generator.'"'.$tagEnd.$lnEnd;
+        $html .= '<meta name="author" content="'.$this->_author.'" '.$tagEnd.$lnEnd;
+        $html .= '<meta name="copyright" content="'.$this->_copyright.'"'.$tagEnd.$lnEnd;
+        $html .= '<meta name="robots" content="'.$this->_robots.'"'.$tagEnd.$lnEnd;
+        $html .= '<meta name="csrf-token" content="'.$this->get('token').'"'.$tagEnd.$lnEnd;
+        $html .= '<meta http-equiv="cache-control" content="'.$this->_cachecontrol.'"'.$tagEnd.$lnEnd;
+        $html .= '<meta http-equiv="Content-Type" content="'.$this->_mime.'; charset='.$this->getCharset().'"'.$tagEnd.$lnEnd;
         // Generate META tags (needs to happen as early as possible in the head)
         foreach ($this->_metaTags as $type => $tag) {
             foreach ($tag as $name => $content) {
                 if ($type == 'http-equiv') {
-                    $html .= $tab.'<meta http-equiv="'.$name.'" content="'.$content.'"'.$tagEnd.$lnEnd;
+                    $html .= '<meta http-equiv="'.$name.'" content="'.$content.'"'.$tagEnd.$lnEnd;
                 } elseif ($type == 'standard') {
-                    $html .= $tab.'<meta name="'.$name.'" content="'.str_replace('"', "'", $content).'"'.$tagEnd.$lnEnd;
+                    $html .= '<meta name="'.$name.'" content="'.str_replace('"', "'", $content).'"'.$tagEnd.$lnEnd;
                 } else {
-                    $html .= $tab.'<meta  name="'.$name.'" '.$type.'="'.$name.'" content="'.str_replace('"', "'", $content).'"'.$tagEnd.$lnEnd;
+                    $html .= '<meta  name="'.$name.'" '.$type.'="'.$name.'" content="'.str_replace('"', "'", $content).'"'.$tagEnd.$lnEnd;
                 }
             }
         }
 
         // Generate link declarations
         foreach ($this->_links as $link) {
-            $html .= $tab.$link.$tagEnd.$lnEnd;
+            $html .= $link.$tagEnd.$lnEnd;
         }
 
-        // Generate stylesheet links
-        foreach ($this->_styleSheets as $strSrc => $strAttr) {
-            $html .= $tab.'<link rel="stylesheet" href="'.$this->format($strSrc).'" type="'.$strAttr['mime'].'"';
-            if (!is_null($strAttr['media'])) {
-                $html .= ' media="'.$strAttr['media'].'" ';
-            }
-            if ($temp = Utility::parseAttributes($strAttr['attribs'])) {
-                $html .= ' '.$temp;
-            }
-            $html .= $tagEnd.$lnEnd;
-        }
-
-        // Generate stylesheet declarations
-        foreach ($this->_style as $type => $content) {
-            $html .= $tab.'<style type="'.$type.'">'.$lnEnd;
-
-            // This is for full XHTML support.
-            if ($this->_mime == 'text/html') {
-                $html .= $tab.$tab.'<!--'.$lnEnd;
-            } else {
-                $html .= $tab.$tab.'<![CDATA['.$lnEnd;
-            }
-
-            $html .= $content.$lnEnd;
-
-            // See above note
-            if ($this->_mime == 'text/html') {
-                $html .= $tab.$tab.'-->'.$lnEnd;
-            } else {
-                $html .= $tab.$tab.']]>'.$lnEnd;
-            }
-            $html .= $tab.'</style>'.$lnEnd;
-        }
-
+        $html .= $this->renderStyles('header');
         $html .= $this->renderScript('header');
 
         return $html;
@@ -835,20 +815,94 @@ class Template extends Di
      */
     public function fetchFooter()
     {
-        return $this->renderScript('footer');
+        $html = $this->renderScript('footer');
+        $html .= $this->renderStyles('footer');
+
+        return $html;
+    }
+
+    public function renderStyles($position = 'footer')
+    {
+        $lnEnd  = "\n";
+        $html   = '';
+        $tagEnd = ' />';
+
+        $styles = $this->_styleSheets[$position];
+
+        if (is_array($styles)) {
+            $mini = Configure::read('minifier');
+            if ($mini['css']) {
+                $minify = $this->get('resolver')->helper('minifier');
+                if ($mini['css']['cdnify']) {
+                    $styles = $minify->cdnify($styles);
+                }
+                if ($mini['css']['minify']) {
+                    $styles = $minify->minify($styles);
+                }
+            }
+
+            foreach ($styles as $strSrc => $attr) {
+                $html .= '<link rel="stylesheet" href="'.$this->format($strSrc).'" type="'.$attr['mime'].'"';
+                if (!is_null($attr['media'])) {
+                    $html .= ' media="'.$attr['media'].'" ';
+                }
+                if ($temp = Utility::parseAttributes($attr['attribs'])) {
+                    $html .= ' '.$temp;
+                }
+                $html .= $tagEnd.$lnEnd;
+            }
+        }
+
+        if (is_array($this->_style[$position])) {
+            // Generate stylesheet declarations
+            foreach ($this->_style[$position] as $type => $content) {
+                $html .= '<style type="'.$type.'">'.$lnEnd;
+
+                // This is for full XHTML support.
+                if ($this->_mime == 'text/html') {
+                    $html .= '<!--'.$lnEnd;
+                } else {
+                    $html .= '<![CDATA['.$lnEnd;
+                }
+
+                $html .= $content.$lnEnd;
+
+                // See above note
+                if ($this->_mime == 'text/html') {
+                    $html .= '-->'.$lnEnd;
+                } else {
+                    $html .= ']]>'.$lnEnd;
+                }
+                $html .= '</style>'.$lnEnd;
+            }
+        }
+
+        return $html;
     }
 
     public function renderScript($position = 'footer')
     {
         $lnEnd = "\n";
-        $tab   = '';
         $html  = '';
 
-        // Generate script file links
-        if (is_array($this->_scripts[$position])) {
-            foreach ($this->_scripts[$position] as $strSrc => $strAttr) {
-                $html .= $tab.'<script type="'.$strAttr['mime'].'" src="'.$this->format($strSrc).'"';
-                if ($temp = Utility::parseAttributes($strAttr['attribs'])) {
+        $scripts = $this->_scripts[$position];
+
+        if (is_array($scripts)) {
+            $mini = Configure::read('minifier');
+            if ($mini['js']) {
+                $minify = $this->get('resolver')->helper('minifier');
+                if ($mini['js']['cdnify']) {
+                    $scripts = $minify->cdnify($scripts);
+                }
+                if ($mini['js']['minify']) {
+                    $scripts = $minify->minify($scripts);
+                }
+            }
+
+            // Generate script file links
+            foreach ($scripts as $src => $attr) {
+                $html .= '<script type="'.$attr['mime'].'" src="'.$this->format($src).'"';
+                if ($temp = Utility::parseAttributes($attr['attribs'])) {
                     $html .= ' '.$temp;
                 }
                 $html .= '></script>'.$lnEnd;
@@ -864,9 +918,9 @@ class Template extends Di
                 if ($this->_mime != 'text/html') {
                     $html .= '<![CDATA['.$lnEnd;
                 }
-                $html .= $tab.'jQuery(document).ready(function(){'.$lnEnd;
+                $html .= 'jQuery(document).ready(function(){'.$lnEnd;
                 $html .= $content.$lnEnd;
-                $html .= $tab.'});'.$lnEnd;
+                $html .= '});'.$lnEnd;
                 // See above note
                 if ($this->_mime != 'text/html') {
                     $html .= '// ]]>'.$lnEnd;
@@ -877,14 +931,12 @@ class Template extends Di
 
         if (is_array($this->_custom[$position])) {
             foreach ($this->_custom[$position] as $custom) {
-                $html .= $tab.$custom.$lnEnd;
+                $html .= $custom.$lnEnd;
             }
         }
 
         return $html;
     }
-
-/******************** ---RENDERING PROCESS ---*****************************************/
 
     /**
      * Render and output the document template.
@@ -1210,46 +1262,12 @@ class Template extends Di
 
     protected function renderHeader()
     {
-        $header = $this->fetchHead();
-
-        if ($header) {
-            $app = Configure::read('app');
-            if ($app['minify_css'] || $app['minify_js']) {
-                $minify = $this->get('resolver')->helper('minify');
-            }
-
-            if ($app['minify_css']) {
-                $header = $minify->minifyStyles($header);
-            }
-
-            if ($app['minify_js']) {
-                $header = $minify->minifyScript($header, ['header' => true]);
-            }
-        }
-
-        return $header;
+        return $this->fetchHead();
     }
 
     protected function renderFooter()
     {
-        $footer = $this->fetchFooter();
-
-        if ($footer) {
-            $app = Configure::read('app');
-            if ($app['minify_css'] || $app['minify_js']) {
-                $minify = $this->get('resolver')->helper('minify');
-            }
-
-            if ($app['minify_css']) {
-                $footer = $minify->minifyStyles($footer);
-            }
-
-            if ($app['minify_js']) {
-                $footer = $minify->minifyScript($footer);
-            }
-        }
-
-        return $footer;
+        return $this->fetchFooter();
     }
 
     /**
