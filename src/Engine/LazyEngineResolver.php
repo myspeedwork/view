@@ -2,7 +2,7 @@
 
 namespace Speedwork\View\Engine;
 
-use Silex\Application;
+use Speedwork\Container\Container;
 
 /**
  * Lazily selects an appropriate rendering engine for a given template.
@@ -22,7 +22,7 @@ class LazyEngineResolver implements EngineResolverInterface
      * @param array       $mapping An association of types to engine identifiers
      * @param string      $type    Default template type to use
      */
-    public function __construct(Application $app, array $mapping = [], $type = null)
+    public function __construct(Container $app, array $mapping = [], $type = null)
     {
         $this->app     = $app;
         $this->mapping = $mapping;

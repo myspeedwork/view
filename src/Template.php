@@ -471,6 +471,8 @@ class Template extends Di
     public function setCharset($type = 'utf-8')
     {
         $this->_charset = $type;
+
+        return $this;
     }
 
     /**
@@ -485,47 +487,6 @@ class Template extends Di
     }
 
     /**
-     * Sets the global document language declaration. Default is English (en-gb).
-     *
-     *
-     * @param string $lang
-     */
-    public function setLanguage($lang = 'en-gb')
-    {
-        $this->_language = strtolower($lang);
-    }
-
-    /**
-     * Returns the document language.
-     *
-     * @return string
-     */
-    public function getLanguage()
-    {
-        return $this->_language;
-    }
-
-    /**
-     * Sets the global document direction declaration. Default is left-to-right (ltr).
-     *
-     *
-     * @param string $lang
-     */
-    public function setDirection($dir = 'ltr')
-    {
-        $this->_direction = strtolower($dir);
-    }
-
-    /**
-     * Returns the document language.
-     *
-     * @return string
-     */
-    public function getDirection()
-    {
-        return $this->_direction;
-    }
-    /**
      * Sets the base URI of the document.
      *
      * @param string $base
@@ -539,6 +500,8 @@ class Template extends Di
         }
 
         $this->_basetarget = $target;
+
+        return $this;
     }
 
     /**
@@ -559,6 +522,8 @@ class Template extends Di
     public function setDescription($description)
     {
         $this->_description = $description;
+
+        return $this;
     }
 
     /**
@@ -579,6 +544,8 @@ class Template extends Di
     public function setTitle($title)
     {
         $this->_title = $title;
+
+        return $this;
     }
 
     /**
@@ -599,6 +566,8 @@ class Template extends Di
     public function setKeywords($keywords)
     {
         $this->_keywords = $keywords;
+
+        return $this;
     }
 
     /**
@@ -619,6 +588,8 @@ class Template extends Di
     public function setGenerator($generator)
     {
         $this->_generator = $generator;
+
+        return $this;
     }
 
     /**
@@ -646,6 +617,8 @@ class Template extends Di
     public function setMimeEncoding($type = 'text/html')
     {
         $this->_mime = strtolower($type);
+
+        return $this;
     }
 
     /**
@@ -723,16 +696,6 @@ class Template extends Di
         $html .= '</script>';
 
         $this->addCustomTag($html, 'header');
-
-        $prefix = '?v=1905';
-
-        $this->addStyleSheetUrl(_SYSURL.'public/templates/system/css/core.css'.$prefix);
-
-        $this->script('jquery/dist/jquery.min.js', 'bower');
-        $this->addScriptUrl(_SYSURL.'public/templates/system/js/dev/form.js'.$prefix);
-        $this->addScriptUrl(_SYSURL.'public/templates/system/js/plugins.min.js'.$prefix);
-        $this->addScriptUrl(_SYSURL.'public/templates/system/js/core.js'.$prefix);
-        $this->addScriptUrl(_SYSURL.'public/templates/system/js/system.js'.$prefix);
     }
 
     /**
@@ -968,7 +931,7 @@ class Template extends Di
             }
         }
 
-        echo $this->parseTemplate($this->get('engine')->fetch($template));
+        echo $this->parseTemplate($this->get('engine')->create($template)->render());
 
         return true;
     }
@@ -1000,9 +963,7 @@ class Template extends Di
         $key   = Configure::read('offline.key');
         //check whether this site is in offline
         if (Configure::read('offline.is_offline') && (empty($allow) || $allow != $key)) {
-            $this->fetchTemplate('offline');
-
-            return false;
+            return $this->fetchTemplate('offline');
         }
 
         // default allow to every one

@@ -2,8 +2,8 @@
 
 namespace Speedwork\View;
 
-use Silex\Application;
-use Silex\ServiceProviderInterface;
+use Speedwork\Container\Container;
+use Speedwork\Container\ServiceProvider;
 use Speedwork\View\Engine\AuraEngine;
 use Speedwork\View\Engine\DelegatingEngine;
 use Speedwork\View\Engine\LazyEngineResolver;
@@ -23,9 +23,9 @@ use Symfony\Component\HttpKernel\KernelEvents;
  *
  * @author Chris Heng <bigblah@gmail.com>
  */
-class ViewServiceProvider implements ServiceProviderInterface
+class ViewServiceProvider extends ServiceProvider
 {
-    public function register(Application $app)
+    public function register(Container $app)
     {
         $app['view.globals'] = [];
 
@@ -38,77 +38,77 @@ class ViewServiceProvider implements ServiceProviderInterface
             'html'     => 'view.engine.string',
         ];
 
-        $app['view.default_engine'] = 'html';
+        $app['view.default_engine'] = 'tpl';
 
         $app['view.listener_priority'] = -20;
 
-        $app['view'] = $app->share(function ($app) {
+        $app['engine'] = function ($app) {
             $factory = $app['debug'] && $app['logger'] ? $app['view.factory.debug'] : $app['view.factory'];
             $factory->getSharedBag()->add($app['view.globals']);
 
             return $factory;
-        });
+        };
 
-        $app['view.factory'] = $app->share(function ($app) {
+        $app['view.factory'] = function ($app) {
             return new ViewFactory($app['view.engine']);
-        });
+        };
 
-        $app['view.factory.debug'] = $app->share(function ($app) {
+        $app['view.factory.debug'] = function ($app) {
             return new LoggableViewFactory($app['view.engine'], $app['view.logger']);
-        });
+        };
 
-        $app['view.engine'] = $app->share(function ($app) {
+        $app['view.engine'] = function ($app) {
             return new DelegatingEngine($app['view.engine_resolver']);
-        });
+        };
 
-        $app['view.engine.string'] = $app->share(function ($app) {
+        $app['view.engine.string'] = function ($app) {
             return new StringEngine();
-        });
+        };
 
-        $app['view.engine.php'] = $app->share(function ($app) {
+        $app['view.engine.php'] = function ($app) {
             return new PhpEngine();
-        });
+        };
 
-        $app['view.engine.aura'] = $app->share(function ($app) {
+        $app['view.engine.aura'] = function ($app) {
             return new AuraEngine($app['aura.template']);
-        });
+        };
 
-        $app['view.engine.plates'] = $app->share(function ($app) {
+        $app['view.engine.plates'] = function ($app) {
             return new PlatesEngine($app['plates']);
-        });
+        };
 
-        $app['view.engine.mustache'] = $app->share(function ($app) {
+        $app['view.engine.mustache'] = function ($app) {
             return new MustacheEngine($app['mustache']);
-        });
+        };
 
-        $app['view.engine.smarty'] = $app->share(function ($app) {
+        $app['view.engine.smarty'] = function ($app) {
             return new SmartyEngine($app['smarty']);
-        });
+        };
 
-        $app['view.engine.twig'] = $app->share(function ($app) {
+        $app['view.engine.twig'] = function ($app) {
             return new TwigEngine($app['twig']);
-        });
+        };
 
-        $app['view.engine_resolver'] = $app->share(function ($app) {
+        $app['view.engine_resolver'] = function ($app) {
             return new LazyEngineResolver($app, $app['view.engines'], $app['view.default_engine']);
-        });
+        };
 
-        $app['view.template_resolver'] = $app->share(function ($app) {
+        $app['view.template_resolver'] = function ($app) {
             return new TemplateResolver($app['view.default_engine']);
-        });
+        };
 
-        $app['view.array_to_view_listener'] = $app->share(function ($app) {
+        $app['view.array_to_view_listener'] = function ($app) {
             return new ArrayToViewListener($app['view'], $app['view.template_resolver']);
-        });
+        };
 
-        $app['view.logger'] = $app->share(function ($app) {
+        $app['view.logger'] = function ($app) {
             $stopwatch = isset($app['debug.stopwatch']) ? $app['debug.stopwatch'] : null;
 
             return new ViewLogger($app['logger'], $stopwatch);
-        });
+        };
     }
 
-    public function boot(Application $app)
+    public function boot(Container $app)
     {
         $app['dispatcher']->addListener(KernelEvents::VIEW, [$app['view.array_to_view_listener'], 'onKernelView'], $app['view.listener_priority']);
     }

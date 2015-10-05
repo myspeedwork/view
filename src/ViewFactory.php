@@ -96,4 +96,16 @@ class ViewFactory
 
         return $this;
     }
+
+    /**
+     * Get value from view bag.
+     *
+     * @param string $key Key name
+     *
+     * @return object
+     */
+    public function release($key)
+    {
+        return $this->sharedBag->get($key);
+    }
 }
