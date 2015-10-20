@@ -12,9 +12,6 @@
     "require": {
         "php" : ">=5.4"
     },
-    "suggest" : {
-        "gigablah/silex-view"   : "dev-master"
-    },
     "autoload" : {
         "psr-4": { "Speedwork\\View\\": "src" }
     },
