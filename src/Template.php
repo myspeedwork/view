@@ -956,28 +956,32 @@ class Template extends Di
         }
 
         if ($this->get['allowme']) {
-            $this->session->set('allowme', $this->get['allowme']);
+            $this->get('session')->set('allowme', $this->get['allowme']);
         }
 
-        $allow = $this->session->get('allowme');
+        $allow = $this->get('session')->get('allowme');
         $key   = Configure::read('offline.key');
         //check whether this site is in offline
         if (Configure::read('offline.is_offline') && (empty($allow) || $allow != $key)) {
             return $this->fetchTemplate('offline');
         }
 
-        // default allow to every one
-        $allowed = $this->acl->isAllowed($this->option, $this->view, $this->task);
+        $is_logged_in = $this->get('is_user_logged_in');
 
-        if (!$allowed && $this->is_ajax_request) {
+        // default allow to every one
+        $allowed = $this->get('acl')->isAllowed($this->option, $this->view, $this->task);
+
+        if (!$allowed && $this->get('is_ajax_request')) {
             if ($this->type == 'html' || $this->format == 'html') {
                 echo  'Your don\'t have sufficient permissions..';
             } else {
-                $status            = [];
-                $status['status']  = 'INFO';
-                $status['message'] = 'Your don\'t have sufficient permissions..';
-                if (!$this->is_user_logged_in) {
-                    $status['login'] = true;
+                $status           = [];
+                $status['status'] = 'INFO';
+                if (!$is_logged_in) {
+                    $status['login']   = true;
+                    $status['message'] = 'Please login to your account.';
+                } else {
+                    $status['message'] = 'Your don\'t have sufficient permissions..';
                 }
                 echo json_encode($status);
             }
@@ -986,7 +990,7 @@ class Template extends Di
         }
 
         //for gusets
-        if (!$allowed && !$this->is_user_logged_in) {
+        if (!$allowed && !$is_logged_in) {
             $link = Configure::read('members.guest');
             if (empty($link)) {
                 $link = 'members/login';
@@ -998,7 +1002,7 @@ class Template extends Di
         }
 
         //for already loggedin users
-        if (!$allowed && $this->is_user_logged_in) {
+        if (!$allowed && $is_logged_in) {
             echo '<div class="alert alert-danger">Your don\'t have sufficient permissions.. </div>';
             $this->redirect('errors/denied');
 
@@ -1006,7 +1010,7 @@ class Template extends Di
         }
 
         //check that is ajax request
-        if ($this->is_ajax_request) {
+        if ($this->get('is_ajax_request')) {
             $this->renderAjax();
 
             return false;
