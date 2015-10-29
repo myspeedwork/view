@@ -731,6 +731,7 @@ class Template extends Di
         if ($append == 'after') {
             $title = $title.' | '.$app['name'];
         }
+        $title = trim($title, ' | ');
 
         $html .= '<title>'.$title.'</title>'.$lnEnd;
         $html .= '<meta name="description" content="'.htmlspecialchars($this->getDescription()).'"'.$tagEnd.$lnEnd;
