@@ -658,6 +658,8 @@ class Template extends Di
     {
         $href           = str_replace('\\', '/', $href);
         $this->_links[] = '<link href="'.$href.'" rel="'.$relation.'" type="'.$type.'"';
+
+        return $this;
     }
 
     public function beforeRender()
