@@ -973,15 +973,21 @@ class Template extends Di
 
         // default allow to every one
         $allowed = $this->get('acl')->isAllowed($this->option, $this->view, $this->task);
+        $next    = Utility::currentUrl();
 
         if (!$allowed && $this->get('is_ajax_request')) {
             if ($this->type == 'html' || $this->format == 'html') {
-                echo  'Your don\'t have sufficient permissions..';
+                if (!$is_logged_in) {
+                    echo  '<div class="alert alert-info text-bold">Please <a data-next="'.$next.'" href="'.$this->link('members/login?next='.urldecode($next)).'" role="login">login</a> to your account.</div>';
+                } else {
+                    echo  '<div class="alert alert-danger text-bold">Your don\'t have sufficient permissions.</div>';
+                }
             } else {
                 $status           = [];
                 $status['status'] = 'INFO';
                 if (!$is_logged_in) {
                     $status['login']   = true;
+                    $status['next']    = $next;
                     $status['message'] = 'Please login to your account.';
                 } else {
                     $status['message'] = 'Your don\'t have sufficient permissions..';
@@ -998,6 +1004,7 @@ class Template extends Di
             if (empty($link)) {
                 $link = 'members/login';
             }
+            $link .= '?next='.urlencode($next);
 
             $this->redirect($link);
 
@@ -1006,7 +1013,7 @@ class Template extends Di
 
         //for already loggedin users
         if (!$allowed && $is_logged_in) {
-            echo '<div class="alert alert-danger">Your don\'t have sufficient permissions.. </div>';
+            echo '<div class="alert alert-danger text-bold">Your don\'t have sufficient permissions.. </div>';
             $this->redirect('errors/denied');
 
             return false;
