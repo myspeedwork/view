@@ -11,10 +11,8 @@
 
 namespace Speedwork\View;
 
-use Speedwork\Config\Configure;
 use Speedwork\Core\Application;
 use Speedwork\Core\Di;
-use Speedwork\Core\Registry;
 use Speedwork\Util\Utility;
 
 /**
@@ -533,7 +531,7 @@ class Template extends Di
      */
     public function getDescription()
     {
-        return ($this->_description) ? $this->_description : Configure::read('app.descn');
+        return ($this->_description) ? $this->_description : config('app.descn');
     }
 
     /**
@@ -555,7 +553,7 @@ class Template extends Di
      */
     public function getTitle()
     {
-        return ($this->_title) ? $this->_title : Configure::read('app.title');
+        return ($this->_title) ? $this->_title : config('app.title');
     }
 
     /**
@@ -577,7 +575,7 @@ class Template extends Di
      */
     public function getKeywords()
     {
-        return ($this->_keywords) ? $this->_keywords : Configure::read('app.keywords');
+        return ($this->_keywords) ? $this->_keywords : config('app.keywords');
     }
 
     /**
@@ -665,12 +663,12 @@ class Template extends Di
     public function beforeRender()
     {
         //set device
-        $device = Configure::read('device');
+        $device = config('app.device');
         if ($device['name']) {
             $this->_device = $device['name'];
         }
 
-        $app = Configure::read('app');
+        $app = config('app');
 
         $this->setMimeEncoding();
         $this->setTitle($app['title']);
@@ -678,20 +676,17 @@ class Template extends Di
         $this->setKeywords(trim($app['keywords']));
         $this->setDescription(trim($app['descn']));
 
-        $seo = Configure::read('seo.seo.enable');
-
-        $prefix = Registry::get('url_prefix');
         //define global javascript var
         $html = '<script type="text/javascript">';
         $html .= '  var is_user_logged_in = '.(($this->get('is_user_logged_in')) ? 'true' : 'false').';';
         $html .= '  var url = "'.$this->format(_URL).'";';
-        $html .= '  var base_url = "'.$this->format(rtrim(_URL.$prefix, '/')).'";';
+        $html .= '  var base_url = "'.$this->format(_URL).'";';
         $html .= '  var public_url = "'._PUBLIC.'";';
         $html .= '  var theme_url = "'._TMP_URL.'";';
         $html .= '  var image_url = "'._UPLOAD.'";';
         $html .= '  var media_url = "'._MEDIA.'";';
         $html .= '  var static_url = "'._STATIC.'";';
-        $html .= '  var seo_urls = '.(($seo) ? 'true' : 'false').';';
+        $html .= '  var seo_urls = '.((config('router.seo.enable')) ? 'true' : 'false').';';
         $html .= '  var sys_url = "'.$this->format(_SYSURL).'";';
         $html .= '  var device = "'.$this->_device.'";';
         $html .= '  var serverTime = '.(time() * 1000).';';
@@ -721,7 +716,7 @@ class Template extends Di
             $html  .= 'target="'.$this->_basetarget.'"'.$tagEnd.$lnEnd;
         }
 
-        $app = Configure::read('app');
+        $app = config('app');
 
         $append = $app['append_sitename_title'];
         $title  = htmlspecialchars($this->getTitle());
@@ -796,7 +791,7 @@ class Template extends Di
         $styles = $this->_styleSheets[$position];
 
         if (is_array($styles)) {
-            $mini = Configure::read('minifier');
+            $mini = config('app.minifier');
             if ($mini['css']) {
                 $minify = $this->get('resolver')->helper('minifier');
                 if ($mini['css']['cdnify']) {
@@ -854,7 +849,7 @@ class Template extends Di
         $scripts = $this->_scripts[$position];
 
         if (is_array($scripts)) {
-            $mini = Configure::read('minifier');
+            $mini = config('app.minifier');
             if ($mini['js']) {
                 $minify = $this->get('resolver')->helper('minifier');
                 if ($mini['js']['cdnify']) {
@@ -963,9 +958,9 @@ class Template extends Di
         }
 
         $allow = $this->get('session')->get('allowme');
-        $key   = Configure::read('offline.key');
+        $key   = config('app.offline.key');
         //check whether this site is in offline
-        if (Configure::read('offline.is_offline') && (empty($allow) || $allow != $key)) {
+        if (config('app.offline.is_offline') && (empty($allow) || $allow != $key)) {
             return $this->fetchTemplate('offline');
         }
 
@@ -973,7 +968,8 @@ class Template extends Di
 
         // default allow to every one
         $allowed = $this->get('acl')->isAllowed($this->option, $this->view, $this->task);
-        $next    = Utility::currentUrl();
+        $next    = $this->get('is_ajax_request') ? '' : Utility::currentUrl();
+        $next    = $this->data['next'] ?: $next;
 
         if (!$allowed && $this->get('is_ajax_request')) {
             if ($this->type == 'html' || $this->format == 'html') {
@@ -1000,7 +996,7 @@ class Template extends Di
 
         //for gusets
         if (!$allowed && !$is_logged_in) {
-            $link = Configure::read('members.guest');
+            $link = config('auth.account.guest');
             if (empty($link)) {
                 $link = 'members/login';
             }
@@ -1208,7 +1204,7 @@ class Template extends Di
             return;
         }
 
-        $modules = Configure::read('theme_modules');
+        $modules = config('theme.modules');
         if (!is_array($modules) || !isset($modules[$position])) {
             return;
         }
