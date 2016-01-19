@@ -24,8 +24,6 @@ class Template extends Di
     protected $_header = [];
 
     protected $breadcrumbs = [];
-    protected $_device     = 'computer';
-    protected $url         = _URL;
 
     /**
      * File extension. Defaults to template ".tpl".
@@ -662,17 +660,17 @@ class Template extends Di
 
     public function beforeRender()
     {
-        //set device
-        $device = config('app.device');
-        if ($device['name']) {
-            $this->_device = $device['name'];
-        }
-
         $app = config('app');
+
+        //set device
+        $device = $app['device'];
+        if ($device['name']) {
+            $device = $device['name'];
+        }
 
         $this->setMimeEncoding();
         $this->setTitle($app['title']);
-        $this->setBase($this->url);
+        $this->setBase(_URL);
         $this->setKeywords(trim($app['keywords']));
         $this->setDescription(trim($app['descn']));
 
@@ -688,7 +686,7 @@ class Template extends Di
         $html .= '  var static_url = "'._STATIC.'";';
         $html .= '  var seo_urls = '.((config('router.seo.enable')) ? 'true' : 'false').';';
         $html .= '  var sys_url = "'.$this->format(_SYSURL).'";';
-        $html .= '  var device = "'.$this->_device.'";';
+        $html .= '  var device = "'.$device.'";';
         $html .= '  var serverTime = '.(time() * 1000).';';
         $html .= '</script>';
 
@@ -768,6 +766,7 @@ class Template extends Di
     {
         return str_replace('http://', '//', $url);
     }
+
     /**
      * Generates the footer html and return the results as a string.
      *
@@ -944,7 +943,7 @@ class Template extends Di
         //check that is ajax request
         if ($this->data['_request'] == 'iframe'
                 || $this->data['_request'] == 'ajax'
-                || strtolower($this->server['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'
+                || strtolower(env('HTTP_X_REQUESTED_WITH')) == 'xmlhttprequest'
                 || ($this->type) || ($this->tpl) || ($this->format)) {
             $this->sets('is_ajax_request', true);
         }

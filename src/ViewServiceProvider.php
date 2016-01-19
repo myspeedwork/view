@@ -16,7 +16,6 @@ use Speedwork\View\Engine\TwigEngine;
 use Speedwork\View\EventListener\ArrayToViewListener;
 use Speedwork\View\Logger\ViewLogger;
 use Speedwork\View\Template\TemplateResolver;
-use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * ViewServiceProvider registers the view factory for wrapping responses with views.
@@ -70,7 +69,7 @@ class ViewServiceProvider extends ServiceProvider
         };
 
         $app['view.engine.aura'] = function ($app) {
-            return new AuraEngine($app['aura.template']);
+            return new AuraEngine($app['aura']);
         };
 
         $app['view.engine.plates'] = function ($app) {
@@ -106,10 +105,5 @@ class ViewServiceProvider extends ServiceProvider
 
             return new ViewLogger($app['logger'], $stopwatch);
         };
-    }
-
-    public function boot(Container $app)
-    {
-        $app['dispatcher']->addListener(KernelEvents::VIEW, [$app['view.array_to_view_listener'], 'onKernelView'], $app['view.listener_priority']);
     }
 }
