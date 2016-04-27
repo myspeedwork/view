@@ -959,7 +959,7 @@ class Template extends Di
         $allow = $this->get('session')->get('allowme');
         $key   = config('app.offline.key');
         //check whether this site is in offline
-        if (config('app.offline.is_offline') && (empty($allow) || $allow != $key)) {
+        if (config('app.offline.enable') && (empty($allow) || $allow != $key)) {
             return $this->fetchTemplate('offline');
         }
 
