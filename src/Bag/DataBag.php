@@ -80,7 +80,7 @@ class DataBag implements \IteratorAggregate, \Countable
      *
      * @param string $key The key
      *
-     * @return Boolean true if the key exists, false otherwise
+     * @return bool true if the key exists, false otherwise
      */
     public function has($key)
     {

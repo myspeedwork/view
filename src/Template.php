@@ -6,9 +6,8 @@
  * @link http://github.com/speedwork
  *
  * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ * file that was distributed with this source code
  */
-
 namespace Speedwork\View;
 
 use Speedwork\Core\Application;
@@ -172,7 +171,7 @@ class Template extends Di
     public function breadCrumbItem($text, $href = '')
     {
         if ($text) {
-            $this->breadcrumbs[] = ['href' => $href,'text' => $text];
+            $this->breadcrumbs[] = ['href' => $href, 'text' => $text];
         }
 
         return $this;
@@ -245,11 +244,11 @@ class Template extends Di
     /**
      * Used to include javascript files from path, default active theme will be used.
      *
-     * @param string $filename Javascript file name.
-     * @param string $path     Path of the file.
-     * @param array  $attr     Any custom attributes.
+     * @param string $filename Javascript file name
+     * @param string $path     Path of the file
+     * @param array  $attr     Any custom attributes
      *
-     * @return boolen True on success and false on fail.
+     * @return boolen True on success and false on fail
      */
     public function script($filename, $path = '', $attr = [])
     {
@@ -266,9 +265,9 @@ class Template extends Di
     /**
      * Used to include style sheets from path, default active theme will be used.
      *
-     * @param string $filename Name of the style sheet.
-     * @param string $path     Path of the file.
-     * @param array  $attribs  Any custom attiributes for stylesheet.
+     * @param string $filename Name of the style sheet
+     * @param string $path     Path of the file
+     * @param array  $attribs  Any custom attiributes for stylesheet
      *
      * @return bool True on success and false on fail
      */
@@ -625,10 +624,10 @@ class Template extends Di
      * Typical tag: <link href="index.php" rel="Start"></p>
      *
      *
-     * @param string $href       The link that is being related.
-     * @param string $relation   Relation of link.
-     * @param string $relType    Relation type attribute.  Either rel or rev (default: 'rel').
-     * @param array  $attributes Associative array of remaining attributes.
+     * @param string $href       The link that is being related
+     * @param string $relation   Relation of link
+     * @param string $relType    Relation type attribute.  Either rel or rev (default: 'rel')
+     * @param array  $attributes Associative array of remaining attributes
      */
     public function addHeadLink($href, $relation, $relType = 'rel', $attribs = [])
     {
@@ -646,7 +645,7 @@ class Template extends Di
      * the left of the url in the address bar. Some browsers display
      * it on the tab, as well.</p>
      *
-     * @param string $href     The link that is being related.
+     * @param string $href     The link that is being related
      * @param string $type     File type
      * @param string $relation Relation of link
      */
@@ -1166,7 +1165,7 @@ class Template extends Di
      *
      * @param string $type    The type of renderer
      * @param string $name    The name of the element to render
-     * @param array  $attribs Associative array of remaining attributes.
+     * @param array  $attribs Associative array of remaining attributes
      *
      * @return The output of the renderer
      */
