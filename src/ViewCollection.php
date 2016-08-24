@@ -24,7 +24,6 @@ class ViewCollection extends \ArrayObject implements ViewInterface
      */
     public function getTemplate()
     {
-        return;
     }
 
     /**
@@ -32,7 +31,6 @@ class ViewCollection extends \ArrayObject implements ViewInterface
      */
     public function getEngine()
     {
-        return;
     }
 
     /**
@@ -168,7 +166,7 @@ class ViewCollection extends \ArrayObject implements ViewInterface
      *
      * @param string $id The unique identifier for the parameter or object
      *
-     * @return Boolean True if the requested index exists, false otherwise
+     * @return bool True if the requested index exists, false otherwise
      */
     public function offsetExists($id)
     {
@@ -195,8 +193,6 @@ class ViewCollection extends \ArrayObject implements ViewInterface
                 return $view->offsetGet($id);
             }
         }
-
-        return;
     }
 
     /**

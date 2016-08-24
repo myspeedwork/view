@@ -25,7 +25,7 @@ interface EngineInterface
      * @param mixed  $template A template
      * @param string $type     The template type
      *
-     * @return Boolean true if this engine supports the given template, false otherwise
+     * @return bool true if this engine supports the given template, false otherwise
      */
     public function supports($template, $type = null);
 }

@@ -201,7 +201,7 @@ class View extends \ArrayObject implements ViewInterface
      *
      * @param string $id The unique identifier for the parameter or object
      *
-     * @return Boolean True if the requested index exists, false otherwise
+     * @return bool True if the requested index exists, false otherwise
      */
     public function offsetExists($id)
     {
