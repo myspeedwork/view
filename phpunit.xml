@@ -14,7 +14,7 @@
          bootstrap="./vendor/autoload.php"
          strict="true">
     <testsuites>
-        <testsuite name="silex-view">
+        <testsuite name="speedwork-view">
             <directory suffix="Test.php">./src/Tests</directory>
         </testsuite>
     </testsuites>

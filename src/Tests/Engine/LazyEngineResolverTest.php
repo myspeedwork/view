@@ -2,7 +2,7 @@
 
 namespace Speedwork\View\Tests\Engine;
 
-use Silex\Application;
+use Speedwork\Container\Container;
 use Speedwork\View\Engine\LazyEngineResolver;
 use Speedwork\View\Engine\PhpEngine;
 use Speedwork\View\Engine\StringEngine;
@@ -14,7 +14,7 @@ class LazyEngineResolverTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->app                       = new Application();
+        $this->app                       = new Container();
         $this->app['view.engine.string'] = new StringEngine();
         $this->app['view.engine.php']    = new PhpEngine();
         $this->resolver                  = new LazyEngineResolver($this->app, [
