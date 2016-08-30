@@ -202,7 +202,7 @@ class Template extends Di
             }
         }
 
-        if (count($files)  == 0) {
+        if (count($files) == 0) {
             return false;
         }
 
@@ -708,9 +708,9 @@ class Template extends Di
 
         // Generate base tag (need to happen first)
         if ($this->getBase() || $this->_basetarget) {
-            $html  .= '<base ';
-            $html  .= ($this->getBase()) ? 'href="'.$this->format($this->getBase()).'" ' : ' ';
-            $html  .= 'target="'.$this->_basetarget.'"'.$tagEnd.$lnEnd;
+            $html .= '<base ';
+            $html .= ($this->getBase()) ? 'href="'.$this->format($this->getBase()).'" ' : ' ';
+            $html .= 'target="'.$this->_basetarget.'"'.$tagEnd.$lnEnd;
         }
 
         $app = config('app');
