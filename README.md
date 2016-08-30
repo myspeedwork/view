@@ -1,5 +1,7 @@
 ViewServiceProvider
 ===================
+[![Coverage Status](https://coveralls.io/repos/github/speedwork/view/badge.svg)](https://coveralls.io/github/speedwork/view)
+[![Build Status](https://travis-ci.org/speedwork/view.svg?branch=master)](https://travis-ci.org/speedwork/view)
 
 The ViewServiceProvider gives engine-agnostic templating capabilities to your [Speedwork][1] application.
 
