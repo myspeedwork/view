@@ -11,7 +11,7 @@
          stopOnIncomplete="false"
          stopOnSkipped="false"
          syntaxCheck="false"
-         bootstrap="./vendor/autoload.php"
+         bootstrap="./tests/bootstrap.php"
          strict="true">
     <testsuites>
         <testsuite name="speedwork-view">

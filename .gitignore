@@ -6,13 +6,12 @@
 *.sublime-project
 *.sublime-workspace
 composer.phar
-composer.lock
 
 # OS Files
 .DS_Store
 Thumbs.db
 ._*
-.nfs*
+.nfs*p.
 *~
 *.bak
 desktop.ini

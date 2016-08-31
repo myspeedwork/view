@@ -2,6 +2,11 @@ ViewServiceProvider
 ===================
 [![Coverage Status](https://coveralls.io/repos/github/speedwork/view/badge.svg)](https://coveralls.io/github/speedwork/view)
 [![Build Status](https://travis-ci.org/speedwork/view.svg?branch=master)](https://travis-ci.org/speedwork/view)
+[![StyleCI](https://styleci.io/repos/37059354/shield)](https://styleci.io/repos/37059354)
+[![Latest Stable Version](https://poser.pugx.org/speedwork/view/v/stable)](https://packagist.org/packages/speedwork/view)
+[![Latest Unstable Version](https://poser.pugx.org/speedwork/view/v/unstable)](https://packagist.org/packages/speedwork/view)
+[![License](https://poser.pugx.org/speedwork/view/license)](https://packagist.org/packages/speedwork/view)
+[![Total Downloads](https://poser.pugx.org/speedwork/view/downloads)](https://packagist.org/packages/speedwork/view)
 
 The ViewServiceProvider gives engine-agnostic templating capabilities to your [Speedwork][1] application.
 
@@ -13,8 +18,8 @@ Use [Composer][2] to install the speedwork/view library by adding it to your `co
 ```json
 {
     "require": {
-        "mustache/mustache": "~2.4",
-        "speedwork/view": "dev-master"
+        "speedwork/view": "dev-master",
+        "mustache/mustache": "~2.4"
     }
 }
 ```
