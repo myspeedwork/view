@@ -46,4 +46,18 @@ class ViewFactoryTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('foo', $view['bar']);
     }
+
+    public function testAssign()
+    {
+        $this->factory->assign('foo', 'bar');
+
+        $this->assertEquals('bar', $this->factory->release('foo'));
+    }
+
+    public function testRelease()
+    {
+        $this->factory->assign('foo', 'bar');
+
+        $this->assertEquals('bar', $this->factory->release('foo'));
+    }
 }

@@ -11,7 +11,6 @@
 
 namespace Speedwork\View;
 
-use Speedwork\Core\Application;
 use Speedwork\Core\Di;
 use Speedwork\Util\Utility;
 
@@ -916,8 +915,8 @@ class Template extends Di
 
         $files = [
             _TMP_PATH.$file,
-            _TMP_SYSTEM.'system'.DS.$file,
-            _TMP_SYSTEM.'system'.DS.'index'.$this->ext,
+            _TMP_PATH.'system'.DS.$file,
+            _TMP_PATH.'system'.DS.'index'.$this->ext,
         ];
 
         $template = '';
@@ -935,7 +934,7 @@ class Template extends Di
 
     public function render($file = '')
     {
-        $this->onBeforeRenderTemplate($file);
+        return $this->onBeforeRenderTemplate($file);
     }
 
     private function onBeforeRenderTemplate($file = '')

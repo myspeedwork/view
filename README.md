@@ -1,12 +1,13 @@
 ViewServiceProvider
 ===================
-[![Coverage Status](https://coveralls.io/repos/github/speedwork/view/badge.svg)](https://coveralls.io/github/speedwork/view)
-[![Build Status](https://travis-ci.org/speedwork/view.svg?branch=master)](https://travis-ci.org/speedwork/view)
+[![codecov](https://codecov.io/gh/speedwork/view/branch/master/graph/badge.svg)](https://codecov.io/gh/speedwork/view)
 [![StyleCI](https://styleci.io/repos/37059354/shield)](https://styleci.io/repos/37059354)
 [![Latest Stable Version](https://poser.pugx.org/speedwork/view/v/stable)](https://packagist.org/packages/speedwork/view)
 [![Latest Unstable Version](https://poser.pugx.org/speedwork/view/v/unstable)](https://packagist.org/packages/speedwork/view)
 [![License](https://poser.pugx.org/speedwork/view/license)](https://packagist.org/packages/speedwork/view)
 [![Total Downloads](https://poser.pugx.org/speedwork/view/downloads)](https://packagist.org/packages/speedwork/view)
+[![Build status](https://ci.appveyor.com/api/projects/status/10aw52t4ga4kek27?svg=true)](https://ci.appveyor.com/project/2stech/view)
+[![Build Status](https://travis-ci.org/speedwork/view.svg?branch=master)](https://travis-ci.org/speedwork/view)
 
 The ViewServiceProvider gives engine-agnostic templating capabilities to your [Speedwork][1] application.
 
