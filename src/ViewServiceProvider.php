@@ -50,22 +50,26 @@ class ViewServiceProvider extends ServiceProvider
 
         $app['view.listener_priority'] = -20;
 
-        $app['engine'] = function ($app) {
+        $app['view.engine'] = function ($app) {
             $factory = $app['debug'] && $app['logger'] ? $app['view.factory.debug'] : $app['view.factory'];
             $factory->getSharedBag()->add($app['view.globals']);
 
             return $factory;
         };
 
+        $app['engine'] = function ($app) {
+            return $app['view.engine'];
+        };
+
         $app['view.factory'] = function ($app) {
-            return new ViewFactory($app['view.engine']);
+            return new ViewFactory($app['view.engine_delegate']);
         };
 
         $app['view.factory.debug'] = function ($app) {
-            return new LoggableViewFactory($app['view.engine'], $app['view.logger']);
+            return new LoggableViewFactory($app['view.engine_delegate'], $app['view.logger']);
         };
 
-        $app['view.engine'] = function ($app) {
+        $app['view.engine_delegate'] = function ($app) {
             return new DelegatingEngine($app['view.engine_resolver']);
         };
 
