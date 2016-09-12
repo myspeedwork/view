@@ -11,6 +11,7 @@
 
 namespace Speedwork\View;
 
+use Smarty;
 use Speedwork\Container\Container;
 use Speedwork\Container\ServiceProvider;
 use Speedwork\View\Engine\AuraEngine;
@@ -22,14 +23,17 @@ use Speedwork\View\Engine\PlatesEngine;
 use Speedwork\View\Engine\SmartyEngine;
 use Speedwork\View\Engine\StringEngine;
 use Speedwork\View\Engine\TwigEngine;
-use Speedwork\View\EventListener\ArrayToViewListener;
 use Speedwork\View\Logger\ViewLogger;
-use Speedwork\View\Template\TemplateResolver;
+use Speedwork\View\Parser\Parser;
+use Speedwork\View\Parser\SmartyParser;
+use Speedwork\View\Parser\TwigParser;
+use Twig_Environment;
+use Twig_Loader_Filesystem;
 
 /**
  * ViewServiceProvider registers the view factory for wrapping responses with views.
  *
- * @author Chris Heng <bigblah@gmail.com>
+ * @author sankar <sankar.suda@gmail.com>>
  */
 class ViewServiceProvider extends ServiceProvider
 {
@@ -47,8 +51,6 @@ class ViewServiceProvider extends ServiceProvider
         ];
 
         $app['view.default_engine'] = 'tpl';
-
-        $app['view.listener_priority'] = -20;
 
         $app['view.engine'] = function ($app) {
             $factory = $app['debug'] && $app['logger'] ? $app['view.factory.debug'] : $app['view.factory'];
@@ -105,18 +107,58 @@ class ViewServiceProvider extends ServiceProvider
             return new LazyEngineResolver($app, $app['view.engines'], $app['view.default_engine']);
         };
 
-        $app['view.template_resolver'] = function ($app) {
-            return new TemplateResolver($app['view.default_engine']);
-        };
-
-        $app['view.array_to_view_listener'] = function ($app) {
-            return new ArrayToViewListener($app['view'], $app['view.template_resolver']);
-        };
-
         $app['view.logger'] = function ($app) {
             $stopwatch = isset($app['debug.stopwatch']) ? $app['debug.stopwatch'] : null;
 
             return new ViewLogger($app['logger'], $stopwatch);
+        };
+
+        $app['view.finder'] = function ($app) {
+            $paths = $app['config']['view.paths'];
+
+            return new FileViewFinder($app['files'], $paths);
+        };
+
+        $app['view.parser'] = function ($app) {
+            return new Parser($app);
+        };
+
+        $this->registerSmartyEngine($app);
+        $this->registerTwigEngine($app);
+    }
+
+    protected function registerSmartyEngine(Container $di)
+    {
+        $di['smarty'] = function ($app) {
+            $smarty = new Smarty();
+            $smarty->setTemplateDir(STORAGE);
+            $smarty->setCompileDir(STORAGE.'views'.DS);
+            $smarty->setCacheDir(CACHE);
+
+            $parser = new SmartyParser($app['view.parser'], $smarty);
+            $parser->register();
+
+            return $smarty;
+        };
+    }
+
+    protected function registerTwigEngine(Container $di)
+    {
+        $di['twig'] = function ($app) {
+            $loader = new Twig_Loader_Filesystem('/');
+            $twig   = new Twig_Environment(
+                $loader, [
+                'cache'       => STORAGE.'views'.DS,
+                'debug'       => true,
+                'auto_reload' => true,
+                'autoescape'  => false,
+                ]
+            );
+
+            $parser = new TwigParser($app['view.parser'], $twig);
+            $parser->register();
+
+            return $twig;
         };
     }
 }

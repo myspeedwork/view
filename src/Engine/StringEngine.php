@@ -14,7 +14,7 @@ namespace Speedwork\View\Engine;
 /**
  * Renders regular strings or files.
  *
- * @author Chris Heng <bigblah@gmail.com>
+ * @author sankar <sankar.suda@gmail.com>>
  */
 class StringEngine implements EngineInterface
 {

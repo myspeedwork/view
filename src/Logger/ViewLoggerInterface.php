@@ -16,7 +16,7 @@ use Speedwork\View\ViewInterface;
 /**
  * Function signatures for logging and profiling views.
  *
- * @author Chris Heng <bigblah@gmail.com>
+ * @author sankar <sankar.suda@gmail.com>>
  */
 interface ViewLoggerInterface
 {

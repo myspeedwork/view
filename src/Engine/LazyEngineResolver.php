@@ -16,7 +16,7 @@ use Speedwork\Container\Container;
 /**
  * Lazily selects an appropriate rendering engine for a given template.
  *
- * @author Chris Heng <bigblah@gmail.com>
+ * @author sankar <sankar.suda@gmail.com>>
  */
 class LazyEngineResolver implements EngineResolverInterface
 {

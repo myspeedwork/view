@@ -16,7 +16,7 @@ use League\Plates\Template;
 /**
  * Plates adapter.
  *
- * @author Chris Heng <bigblah@gmail.com>
+ * @author sankar <sankar.suda@gmail.com>>
  */
 class PlatesEngine implements EngineInterface
 {

@@ -18,7 +18,7 @@ use Speedwork\View\Engine\EngineInterface;
 /**
  * Factory for creating view objects.
  *
- * @author Chris Heng <bigblah@gmail.com>
+ * @author sankar <sankar.suda@gmail.com>>
  */
 class ViewFactory
 {

@@ -20,7 +20,7 @@ use Symfony\Component\HttpKernel\DataCollector\DataCollector;
 /**
  * Collects view rendering data for the Symfony2 profiler.
  *
- * @author Chris Heng <bigblah@gmail.com>
+ * @author sankar <sankar.suda@gmail.com>>
  */
 class ViewDataCollector extends DataCollector
 {

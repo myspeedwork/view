@@ -14,7 +14,7 @@ namespace Speedwork\View\Bag;
 /**
  * Generic container for key/value pairs.
  *
- * @author Chris Heng <bigblah@gmail.com>
+ * @author sankar <sankar.suda@gmail.com>>
  */
 class DataBag implements \IteratorAggregate, \Countable
 {

@@ -14,7 +14,7 @@ namespace Speedwork\View\Engine;
 /**
  * Interface that rendering engine adapters should implement.
  *
- * @author Chris Heng <bigblah@gmail.com>
+ * @author sankar <sankar.suda@gmail.com>>
  */
 interface EngineInterface
 {

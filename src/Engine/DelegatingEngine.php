@@ -16,7 +16,7 @@ use Speedwork\View\Exception\RenderException;
 /**
  * Delegates rendering using an EngineResolver.
  *
- * @author Chris Heng <bigblah@gmail.com>
+ * @author sankar <sankar.suda@gmail.com>>
  */
 class DelegatingEngine implements EngineInterface
 {

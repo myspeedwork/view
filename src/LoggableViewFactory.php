@@ -17,7 +17,7 @@ use Speedwork\View\Logger\ViewLoggerInterface;
 /**
  * Factory for creating loggable view objects.
  *
- * @author Chris Heng <bigblah@gmail.com>
+ * @author sankar <sankar.suda@gmail.com>>
  */
 class LoggableViewFactory extends ViewFactory
 {

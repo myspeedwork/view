@@ -14,7 +14,7 @@ namespace Speedwork\View\Engine;
 /**
  * Interface for template engine resolvers.
  *
- * @author Chris Heng <bigblah@gmail.com>
+ * @author sankar <sankar.suda@gmail.com>>
  */
 interface EngineResolverInterface
 {

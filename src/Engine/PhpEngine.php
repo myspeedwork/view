@@ -14,7 +14,7 @@ namespace Speedwork\View\Engine;
 /**
  * Raw PHP adapter.
  *
- * @author Chris Heng <bigblah@gmail.com>
+ * @author sankar <sankar.suda@gmail.com>>
  */
 class PhpEngine implements EngineInterface
 {
@@ -31,7 +31,7 @@ class PhpEngine implements EngineInterface
         ob_implicit_flush(0);
 
         try {
-            require $template;
+            include $template;
         } catch (\Exception $exception) {
             ob_end_clean();
             throw $exception;

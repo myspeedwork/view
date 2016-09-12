@@ -19,7 +19,7 @@ use Speedwork\View\Engine\StringEngine;
 /**
  * Nestable view container capable of rendering itself.
  *
- * @author Chris Heng <bigblah@gmail.com>
+ * @author sankar <sankar.suda@gmail.com>>
  */
 class View extends \ArrayObject implements ViewInterface
 {
@@ -76,6 +76,8 @@ class View extends \ArrayObject implements ViewInterface
                 $item->inherit($this->all() + $this->parentBag->all());
             }
         }
+
+        return $this->getEngine()->render($this->template, $this->with($context));
 
         try {
             return $this->getEngine()->render($this->template, $this->with($context));

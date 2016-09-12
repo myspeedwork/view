@@ -12,6 +12,7 @@
 namespace Speedwork\View;
 
 use Speedwork\Core\Di;
+use Speedwork\Core\Traits\RequestTrait;
 use Speedwork\Util\Utility;
 
 /**
@@ -19,6 +20,7 @@ use Speedwork\Util\Utility;
  */
 class Template extends Di
 {
+    use RequestTrait;
     protected $_footer = [];
     protected $_header = [];
 
@@ -256,7 +258,7 @@ class Template extends Di
             $path             = _STATIC;
             $attr['position'] = ($attr['position']) ? $attr['position'] : 'footer';
         }
-        $path = (!$path) ? _TMP_URL.'js/' : $path;
+        $path = (!$path) ? _THEME.'js/' : $path;
         $this->addScriptUrl($path.$filename, $attr);
 
         return $this;
@@ -277,7 +279,7 @@ class Template extends Di
             $path = _STATIC;
         }
 
-        $path = (!$path) ? _TMP_URL.'css/' : $path;
+        $path = (!$path) ? _THEME.'css/' : $path;
         $path = $path.$filename;
         $this->addStyleSheetUrl($path, $attribs);
 
@@ -365,7 +367,6 @@ class Template extends Di
 
     /**
      * Adds a script to the page.
-     *
      *
      * @param string $content Script
      * @param string $type    Scripting mime (defaults to 'text/javascript')
@@ -473,7 +474,6 @@ class Template extends Di
     /**
      * Returns the document charset encoding.
      *
-     *
      * @return string
      */
     public function getCharset()
@@ -578,7 +578,7 @@ class Template extends Di
     /**
      * Sets the document generator.
      *
-     * @param   string
+     * @param string
      */
     public function setGenerator($generator)
     {
@@ -589,7 +589,6 @@ class Template extends Di
 
     /**
      * Returns the document generator.
-     *
      *
      * @return string
      */
@@ -622,7 +621,6 @@ class Template extends Di
      * <p>$relType defaults to 'rel' as it is the most common relation type used.
      * ('rev' refers to reverse relation, 'rel' indicates normal, forward relation.)
      * Typical tag: <link href="index.php" rel="Start"></p>
-     *
      *
      * @param string $href       The link that is being related
      * @param string $relation   Relation of link
@@ -679,7 +677,7 @@ class Template extends Di
         $html .= '  var url = "'.$this->format(_URL).'";';
         $html .= '  var base_url = "'.$this->format(_URL).'";';
         $html .= '  var public_url = "'._PUBLIC.'";';
-        $html .= '  var theme_url = "'._TMP_URL.'";';
+        $html .= '  var theme_url = "'._THEME.'";';
         $html .= '  var image_url = "'._UPLOAD.'";';
         $html .= '  var media_url = "'._MEDIA.'";';
         $html .= '  var static_url = "'._STATIC.'";';
@@ -694,7 +692,6 @@ class Template extends Di
 
     /**
      * Generates the head html and return the results as a string.
-     *
      *
      * @return string
      */
@@ -768,7 +765,6 @@ class Template extends Di
 
     /**
      * Generates the footer html and return the results as a string.
-     *
      *
      * @return string
      */
@@ -900,7 +896,6 @@ class Template extends Di
     /**
      * Render and output the document template.
      *
-     *
      * @param string $_template The template folder
      * @param string $file      | optional template file
      *
@@ -908,26 +903,32 @@ class Template extends Di
      */
     private function fetchTemplate($file = '')
     {
-        $view = _TMP_VIEW;
-        $view = ($view) ? $view : 'index';
-        $file = $file ? $file : $view;
-        $file = $file.$this->ext;
+        $view = _THEMEVIEW;
+        $view = $view ?: 'index';
+        $file = $file ?: $view;
+
+        $extensions = config('view.extensions');
+        $extensions = $extensions ?: ['tpl'];
 
         $files = [
-            _TMP_PATH.$file,
-            _TMP_PATH.'system'.DS.$file,
-            _TMP_PATH.'system'.DS.'index'.$this->ext,
+            THEME.$file,
+            THEME.'system'.DS.$file,
+            THEME.'system'.DS.'index',
         ];
 
         $template = '';
         foreach ($files as $file) {
-            if (file_exists($file)) {
-                $template = $file;
-                break;
+            foreach ($extensions as $extension) {
+                if (file_exists($file.'.'.$extension)) {
+                    $template = $file.'.'.$extension;
+                    break 2;
+                }
             }
         }
 
-        echo $this->parseTemplate($this->get('engine')->create($template)->render());
+        if ($template) {
+            echo $this->parseTemplate($this->get('engine')->create($template)->render());
+        }
 
         return true;
     }
@@ -941,9 +942,10 @@ class Template extends Di
     {
         //check that is ajax request
         if ($this->data['_request'] == 'iframe'
-                || $this->data['_request'] == 'ajax'
-                || strtolower(env('HTTP_X_REQUESTED_WITH')) == 'xmlhttprequest'
-                || ($this->type) || ($this->tpl) || ($this->format)) {
+            || $this->data['_request'] == 'ajax'
+            || strtolower(env('HTTP_X_REQUESTED_WITH')) == 'xmlhttprequest'
+            || ($this->type) || ($this->tpl) || ($this->format)
+        ) {
             $this->sets('is_ajax_request', true);
         }
 
@@ -951,8 +953,8 @@ class Template extends Di
             $this->sets('is_iframe_request', true);
         }
 
-        if ($this->get['allowme']) {
-            $this->get('session')->set('allowme', $this->get['allowme']);
+        if ($this->data['allowme']) {
+            $this->get('session')->set('allowme', $this->data['allowme']);
         }
 
         $allow = $this->get('session')->get('allowme');
@@ -1026,6 +1028,7 @@ class Template extends Di
     public function renderAjax()
     {
         $formats = ['raw', 'xml', 'rss', 'json', 'js', 'jsonp', 'script'];
+        $route   = $this->option.'.'.$this->view;
 
         if ($this->format == 'js' || $this->format == 'script') {
             header('Content-Type: application/javascript');
@@ -1036,7 +1039,7 @@ class Template extends Di
         }
 
         if ($this->type == 'module' && empty($this->format)) {
-            return $this->get('resolver')->module($this->option, $this->view);
+            return $this->get('resolver')->module($route);
         }
 
         if ($this->type == 'widget') {
@@ -1065,9 +1068,9 @@ class Template extends Di
 
             if (in_array($this->type, $formats) || in_array($this->format, $formats)) {
                 if ($this->type == 'module') {
-                    $response = $this->get('resolver')->loadModuleController($this->option, $this->view);
+                    $response = $this->get('resolver')->loadModuleController($route);
                 } else {
-                    $response = $this->get('resolver')->loadController($this->option, $this->view);
+                    $response = $this->get('resolver')->loadController($route);
                 }
 
                 if ($this->format == 'json' || $this->format == 'jsonp') {
@@ -1102,7 +1105,6 @@ class Template extends Di
 
     /**
      * Parse a document template.
-     *
      *
      * @param string $data The data too parse
      *
@@ -1162,7 +1164,6 @@ class Template extends Di
     /**
      * Get the contents of a document include.
      *
-     *
      * @param string $type    The type of renderer
      * @param string $name    The name of the element to render
      * @param array  $attribs Associative array of remaining attributes
@@ -1184,7 +1185,7 @@ class Template extends Di
 
     protected function renderModule($name, $attribs)
     {
-        return $this->get('resolver')->module($name, $attribs['view'], $attribs);
+        return $this->get('resolver')->module($name, $attribs);
     }
 
     protected function renderModules($position)
@@ -1202,7 +1203,7 @@ class Template extends Di
             return;
         }
 
-        $modules = config('theme.modules');
+        $modules = config('view.modules');
         if (!is_array($modules) || !isset($modules[$position])) {
             return;
         }
@@ -1219,14 +1220,11 @@ class Template extends Di
         }
     }
 
-    protected function renderComponent($option, $attribs)
+    protected function renderComponent($name, $attribs)
     {
-        $option = ($option) ? $option : $this->option;
-        $view   = ($attribs['view']) ? $attribs['view'] : $this->view;
+        $name = $name ?: $this->option.'.'.$this->view;
 
-        unset($attribs['name'], $attribs['view']);
-
-        return $this->get('resolver')->component($option, $view, $attribs);
+        return $this->get('resolver')->component($name, $attribs);
     }
 
     protected function renderHeader()

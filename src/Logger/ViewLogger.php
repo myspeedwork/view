@@ -18,7 +18,7 @@ use Symfony\Component\Stopwatch\Stopwatch;
 /**
  * Default view logger that supports log collection and time profiling.
  *
- * @author Chris Heng <bigblah@gmail.com>
+ * @author sankar <sankar.suda@gmail.com>>
  */
 class ViewLogger implements ViewLoggerInterface
 {

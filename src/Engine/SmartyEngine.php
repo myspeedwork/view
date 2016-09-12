@@ -14,7 +14,7 @@ namespace Speedwork\View\Engine;
 /**
  * Smarty adapter.
  *
- * @author Chris Heng <bigblah@gmail.com>
+ * @author sankar <sankar.suda@gmail.com>>
  */
 class SmartyEngine implements EngineInterface
 {

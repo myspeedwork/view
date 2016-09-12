@@ -16,7 +16,7 @@ use Speedwork\View\Logger\ViewLoggerInterface;
 /**
  * View with logging functionality.
  *
- * @author Chris Heng <bigblah@gmail.com>
+ * @author sankar <sankar.suda@gmail.com>>
  */
 class LoggableView extends View
 {

@@ -14,7 +14,7 @@ namespace Speedwork\View\Bag;
 /**
  * Container for holding render exceptions.
  *
- * @author Chris Heng <bigblah@gmail.com>
+ * @author sankar <sankar.suda@gmail.com>>
  */
 class ExceptionBag implements \IteratorAggregate, \Countable
 {

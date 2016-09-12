@@ -18,7 +18,7 @@ namespace Speedwork\View;
  * To return the complete view data including globals: $view->getArrayCopy()
  * To convert the view to an array, including nested views: $view->toArray()
  *
- * @author Chris Heng <bigblah@gmail.com>
+ * @author sankar <sankar.suda@gmail.com>>
  */
 interface ViewInterface
 {

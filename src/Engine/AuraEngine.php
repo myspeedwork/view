@@ -16,7 +16,7 @@ use Aura\View\Template;
 /**
  * Aura.View adapter.
  *
- * @author Chris Heng <bigblah@gmail.com>
+ * @author sankar <sankar.suda@gmail.com>>
  */
 class AuraEngine implements EngineInterface
 {

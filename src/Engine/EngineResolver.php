@@ -14,7 +14,7 @@ namespace Speedwork\View\Engine;
 /**
  * Selects an appropriate rendering engine for a given template.
  *
- * @author Chris Heng <bigblah@gmail.com>
+ * @author sankar <sankar.suda@gmail.com>>
  */
 class EngineResolver implements EngineResolverInterface
 {

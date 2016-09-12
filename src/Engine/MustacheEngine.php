@@ -14,7 +14,7 @@ namespace Speedwork\View\Engine;
 /**
  * Mustache adapter.
  *
- * @author Chris Heng <bigblah@gmail.com>
+ * @author sankar <sankar.suda@gmail.com>>
  */
 class MustacheEngine implements EngineInterface
 {

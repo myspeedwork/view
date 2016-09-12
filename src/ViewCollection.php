@@ -14,7 +14,7 @@ namespace Speedwork\View;
 /**
  * An array-like collection of ViewInterface objects.
  *
- * @author Chris Heng <bigblah@gmail.com>
+ * @author sankar <sankar.suda@gmail.com>>
  */
 class ViewCollection extends \ArrayObject implements ViewInterface
 {
