@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Speedwork package.
+ *
+ * (c) Sankar <sankar.suda@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code
+ */
+
 namespace Speedwork\View;
 
 use InvalidArgumentException;
@@ -56,9 +65,9 @@ class ViewFinder implements ViewFinderInterface
     /**
      * Create a new file view loader instance.
      *
-     * @param \Illuminate\Filesystem\Filesystem $files
-     * @param array                             $paths
-     * @param array                             $extensions
+     * @param \Speedwork\Filesystem\Filesystem $files
+     * @param array                            $paths
+     * @param array                            $extensions
      */
     public function __construct(Filesystem $files, array $paths, array $extensions = null)
     {
@@ -109,9 +118,9 @@ class ViewFinder implements ViewFinderInterface
      *
      * @param string $name
      *
-     * @return array
-     *
      * @throws \InvalidArgumentException
+     *
+     * @return array
      */
     protected function getNamespaceSegments($name)
     {
@@ -134,9 +143,9 @@ class ViewFinder implements ViewFinderInterface
      * @param string $name
      * @param array  $paths
      *
-     * @return string
-     *
      * @throws \InvalidArgumentException
+     *
+     * @return string
      */
     protected function findInPaths($name, $paths)
     {
@@ -250,7 +259,7 @@ class ViewFinder implements ViewFinderInterface
     /**
      * Get the filesystem instance.
      *
-     * @return \Illuminate\Filesystem\Filesystem
+     * @return \Speedwork\Filesystem\Filesystem
      */
     public function getFilesystem()
     {

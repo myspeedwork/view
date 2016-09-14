@@ -77,8 +77,6 @@ class View extends \ArrayObject implements ViewInterface
             }
         }
 
-        return $this->getEngine()->render($this->template, $this->with($context));
-
         try {
             return $this->getEngine()->render($this->template, $this->with($context));
         } catch (\Exception $exception) {

@@ -21,6 +21,7 @@ use Speedwork\Util\Utility;
 class Template extends Di
 {
     use RequestTrait;
+
     protected $_footer = [];
     protected $_header = [];
 
@@ -422,10 +423,10 @@ class Template extends Di
         } elseif ($name == 'description') {
             $result = $this->getDescription();
         } else {
-            if ($http_equiv == true) {
-                $result = @$this->_metaTags['http-equiv'][$name];
+            if ($http_equiv === true) {
+                $result = $this->_metaTags['http-equiv'][$name];
             } else {
-                $result = @$this->_metaTags['standard'][$name];
+                $result = $this->_metaTags['standard'][$name];
             }
         }
 
@@ -1044,13 +1045,6 @@ class Template extends Di
 
         if ($this->type == 'widget') {
             return $this->get('resolver')->widget($this->option, [], true);
-        }
-
-        if ($this->type == 'captcha') {
-            $captcha = new Securimage();
-            $captcha->show();
-
-            return true;
         }
 
         if ($this->type == 'html' || $this->format == 'html') {

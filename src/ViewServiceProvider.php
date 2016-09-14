@@ -50,8 +50,6 @@ class ViewServiceProvider extends ServiceProvider
             'html'     => 'view.engine.string',
         ];
 
-        $app['view.default_engine'] = 'tpl';
-
         $app['view.engine'] = function ($app) {
             $factory = $app['debug'] && $app['logger'] ? $app['view.factory.debug'] : $app['view.factory'];
             $factory->getSharedBag()->add($app['view.globals']);
@@ -75,6 +73,36 @@ class ViewServiceProvider extends ServiceProvider
             return new DelegatingEngine($app['view.engine_resolver']);
         };
 
+        $app['view.engine_resolver'] = function ($app) {
+            return new LazyEngineResolver($app, $app['view.engines'], $app['view.default_engine']);
+        };
+
+        $app['view.logger'] = function ($app) {
+            $stopwatch = isset($app['debug.stopwatch']) ? $app['debug.stopwatch'] : null;
+
+            return new ViewLogger($app['logger'], $stopwatch);
+        };
+
+        $app['view.finder'] = function ($app) {
+            $paths = $app['config']['view.paths'];
+
+            return new ViewFinder($app['files'], $paths);
+        };
+
+        $app['view.parser'] = function ($app) {
+            return new Parser($app);
+        };
+
+        $extensions                 = $this->getSettings('view.extensions');
+        $app['view.default_engine'] = is_array($extensions) ? $extensions[0] : 'tpl';
+
+        $this->registerEngines($app);
+        $this->registerSmartyEngine($app);
+        $this->registerTwigEngine($app);
+    }
+
+    protected function registerEngines(Container $app)
+    {
         $app['view.engine.string'] = function ($app) {
             return new StringEngine();
         };
@@ -102,34 +130,11 @@ class ViewServiceProvider extends ServiceProvider
         $app['view.engine.twig'] = function ($app) {
             return new TwigEngine($app['twig']);
         };
-
-        $app['view.engine_resolver'] = function ($app) {
-            return new LazyEngineResolver($app, $app['view.engines'], $app['view.default_engine']);
-        };
-
-        $app['view.logger'] = function ($app) {
-            $stopwatch = isset($app['debug.stopwatch']) ? $app['debug.stopwatch'] : null;
-
-            return new ViewLogger($app['logger'], $stopwatch);
-        };
-
-        $app['view.finder'] = function ($app) {
-            $paths = $app['config']['view.paths'];
-
-            return new FileViewFinder($app['files'], $paths);
-        };
-
-        $app['view.parser'] = function ($app) {
-            return new Parser($app);
-        };
-
-        $this->registerSmartyEngine($app);
-        $this->registerTwigEngine($app);
     }
 
-    protected function registerSmartyEngine(Container $di)
+    protected function registerSmartyEngine(Container $app)
     {
-        $di['smarty'] = function ($app) {
+        $app['smarty'] = function ($app) {
             $smarty = new Smarty();
             $smarty->setTemplateDir(STORAGE);
             $smarty->setCompileDir(STORAGE.'views'.DS);
@@ -142,9 +147,9 @@ class ViewServiceProvider extends ServiceProvider
         };
     }
 
-    protected function registerTwigEngine(Container $di)
+    protected function registerTwigEngine(Container $app)
     {
-        $di['twig'] = function ($app) {
+        $app['twig'] = function ($app) {
             $loader = new Twig_Loader_Filesystem('/');
             $twig   = new Twig_Environment(
                 $loader, [

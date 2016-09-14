@@ -2,6 +2,7 @@ ViewServiceProvider
 ===================
 [![codecov](https://codecov.io/gh/speedwork/view/branch/master/graph/badge.svg)](https://codecov.io/gh/speedwork/view)
 [![StyleCI](https://styleci.io/repos/37059354/shield)](https://styleci.io/repos/37059354)
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/cedf8e49-a306-40d1-8b99-f523e4c2baa5/mini.png)](https://insight.sensiolabs.com/projects/cedf8e49-a306-40d1-8b99-f523e4c2baa5)
 [![Latest Stable Version](https://poser.pugx.org/speedwork/view/v/stable)](https://packagist.org/packages/speedwork/view)
 [![Latest Unstable Version](https://poser.pugx.org/speedwork/view/v/unstable)](https://packagist.org/packages/speedwork/view)
 [![License](https://poser.pugx.org/speedwork/view/license)](https://packagist.org/packages/speedwork/view)
