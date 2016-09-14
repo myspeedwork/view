@@ -450,7 +450,7 @@ class Template extends Di
         } else {
             if ($http_equiv === true) {
                 $this->_metaTags['http-equiv'][$name] = $content;
-            } elseif ($http_equiv != false) {
+            } elseif ($http_equiv !== false) {
                 $this->_metaTags[$http_equiv][$name] = $content;
             } else {
                 $this->_metaTags['standard'][$name] = $content;
@@ -489,7 +489,7 @@ class Template extends Di
      */
     public function setBase($base, $target = '_self')
     {
-        if ($base != 'false' && $base != false) {
+        if ($base !== 'false' && $base !== false) {
             $this->_base = $base;
         } else {
             $this->_base = null;
