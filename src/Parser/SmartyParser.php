@@ -111,7 +111,7 @@ class SmartyParser
     /*
      * To run functions in template class
      * {speed theme="script" params="showcase.js"}
-     * {speed theme="setMetaData" params="viewport','320"}
+     * {speed theme="setMeta" params="viewport','320"}
      */
     protected function theme($params = [])
     {

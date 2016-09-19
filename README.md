@@ -12,18 +12,12 @@ ViewServiceProvider
 
 The ViewServiceProvider gives engine-agnostic templating capabilities to your [Speedwork][1] application.
 
-Installation
-------------
+Installation with Composer
+--------------------------
 
-Use [Composer][2] to install the speedwork/view library by adding it to your `composer.json`. You'll also need a rendering engine, such as [Mustache][3].
-
-```json
-{
-    "require": {
-        "speedwork/view": "dev-master",
-        "mustache/mustache": "~2.4"
-    }
-}
+```shell
+curl -s http://getcomposer.org/installer | php
+php composer.phar require speedwork/view
 ```
 
 Usage
@@ -155,3 +149,14 @@ Released under the MIT license. See the LICENSE file for details.
 [5]: http://twig.sensiolabs.org
 [6]: http://github.com/auraphp/Aura.View
 [7]: http://platesphp.com
+
+Contributing
+------------
+
+1. Fork it
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Make your changes
+4. Run the tests, adding new ones for your own code if necessary (`phpunit`)
+5. Commit your changes (`git commit -am 'Added some feature'`)
+6. Push to the branch (`git push origin my-new-feature`)
+7. Create new Pull Request
