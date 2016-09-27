@@ -30,6 +30,7 @@ class SmartyParser
         'theme',
         'render',
         'config',
+        'view',
     ];
 
     /**
@@ -74,9 +75,17 @@ class SmartyParser
     {
         $string = $params['trans'];
 
-        return $this->parser->trans($string);
+        return $this->parser->trans($string, $params);
     }
 
+    /**
+     * Template engine to render links
+     * {speed link="index.php?option=content"}.
+     *
+     * @param array $params Smarty params
+     *
+     * @return string Results
+     */
     protected function link($params = [])
     {
         return $this->parser->link($params['link']);
@@ -96,6 +105,19 @@ class SmartyParser
     }
 
     /**
+     * Template engine to render view with data
+     * {speed view="component.folder.layout" data=$row, type="module"}.
+     *
+     * @param array $params Smarty params
+     *
+     * @return string Results
+     */
+    protected function view($params = [])
+    {
+        return $this->parser->view($params['view'], $params, $params['type']);
+    }
+
+    /**
      * Request componets or modules
      * {speed request="books" type="component"}.
      *
@@ -110,7 +132,6 @@ class SmartyParser
 
     /*
      * To run functions in template class
-     * {speed theme="script" params="showcase.js"}
      * {speed theme="setMeta" params="viewport','320"}
      */
     protected function theme($params = [])

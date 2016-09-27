@@ -56,6 +56,7 @@ class TwigParser
         $this->engine->addFunction(new Twig_SimpleFunction('link', [$this->parser, 'link']));
         $this->engine->addFunction(new Twig_SimpleFunction('request', [$this->parser, 'request']));
         $this->engine->addFunction(new Twig_SimpleFunction('render', [$this->parser, 'render']));
+        $this->engine->addFunction(new Twig_SimpleFunction('view', [$this->parser, 'view']));
         $this->engine->addFunction(new Twig_SimpleFunction('theme', [$this->parser, 'theme']));
         $this->engine->addFunction(new Twig_SimpleFunction('config', [$this->parser, 'config']));
     }

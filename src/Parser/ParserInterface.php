@@ -77,6 +77,17 @@ interface ParserInterface
     public function layout($name, $type = 'component');
 
     /**
+     * Layout render from modules, components and themes.
+     *
+     * @param string $name Name of the view with module
+     * @param array  $date Data to view
+     * @param string $type Type of the view
+     *
+     * @return string Layout complete path
+     */
+    public function view($name, $data = [], $type = 'component');
+
+    /**
      * Request modules or components.
      *
      * @param string $name Name of the component or module
@@ -106,6 +117,16 @@ interface ParserInterface
      * @return string Compiled output of the request
      */
     public function theme($method, $args = []);
+
+    /**
+     * Render theme assets.
+     *
+     * @param string $method Name of the method
+     * @param array  $args   Additional arguments
+     *
+     * @return string Compiled output of the request
+     */
+    public function asset($method, $args = []);
 
     /**
      * Display status string in beautiful way.

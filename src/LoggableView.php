@@ -39,7 +39,7 @@ class LoggableView extends View
         }
 
         $this->logger->startRender($this);
-        $content = parent::render($context);
+        $content = parent::render($context, true);
         $this->logger->stopRender($this);
 
         return $content;

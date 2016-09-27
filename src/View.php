@@ -69,12 +69,16 @@ class View extends \ArrayObject implements ViewInterface
     /**
      * {@inheritdoc}
      */
-    public function render($context = [])
+    public function render($context = [], $debug = true)
     {
         foreach ($this as $item) {
             if ($item instanceof ViewInterface) {
                 $item->inherit($this->all() + $this->parentBag->all());
             }
+        }
+
+        if ($debug) {
+            return $this->getEngine()->render($this->template, $this->with($context));
         }
 
         try {

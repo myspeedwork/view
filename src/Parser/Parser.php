@@ -74,6 +74,16 @@ class Parser implements ParserInterface
     /**
      * {@inheritdoc}
      */
+    public function view($name, $data = [], $type = 'component')
+    {
+        $type = $type ?: 'component';
+
+        return $this->getContainer()->get('resolver')->loadView($name, $data, $type);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function request($name, $args = [], $type = 'component')
     {
         $type = $type ?: 'component';
@@ -101,6 +111,15 @@ class Parser implements ParserInterface
     {
         $theme = $this->getContainer()->get('template');
         call_user_func_array([$theme, $method], $args);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function asset($method, $args = [])
+    {
+        $asset = $this->getContainer()->get('asset');
+        call_user_func_array([$asset, $method], $args);
     }
 
     /**

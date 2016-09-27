@@ -39,11 +39,12 @@ interface ViewInterface
     /**
      * Renders the view output.
      *
-     * @param mixed $context
+     * @param mixed  $context
+     * @param boolen $debug
      *
      * @return string
      */
-    public function render($context = []);
+    public function render($context = [], $debug = false);
 
     /**
      * Insert another view as a data element.

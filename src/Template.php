@@ -165,6 +165,8 @@ class Template extends Di
         $device = $app['device'];
         $meta   = $app['meta'];
 
+        $location = $this->config('location');
+
         if (is_array($meta)) {
             foreach ($meta as $name => $content) {
                 list($name, $httpEquiv) = explode('::', $name);
@@ -178,13 +180,13 @@ class Template extends Di
         //define global javascript var
         $html = '<script type="text/javascript">';
         $html .= '  var is_user_logged_in = '.(($this->get('is_user_logged_in')) ? 'true' : 'false').';';
-        $html .= '  var url = "'._URL.'";';
-        $html .= '  var base_url = "'._URL.'";';
-        $html .= '  var public_url = "'._PUBLIC.'";';
-        $html .= '  var theme_url = "'._THEME.'";';
-        $html .= '  var image_url = "'._UPLOAD.'";';
-        $html .= '  var media_url = "'._MEDIA.'";';
-        $html .= '  var static_url = "'._STATIC.'";';
+        $html .= '  var url = "'.$app['url'].'";';
+        $html .= '  var base_url = "'.$location['url'].'";';
+        $html .= '  var public_url = "'.$location['public'].'";';
+        $html .= '  var theme_url = "'.$location['theme'].'";';
+        $html .= '  var image_url = "'.$location['images'].'";';
+        $html .= '  var media_url = "'.$location['media'].'";';
+        $html .= '  var static_url = "'.$location['static'].'";';
         $html .= '  var seo_urls = '.((config('router.seo.enable')) ? 'true' : 'false').';';
         $html .= '  var device = "'.$device['name'].'";';
         $html .= '  var serverTime = '.(time() * 1000).';';
@@ -260,23 +262,23 @@ class Template extends Di
      */
     private function fetchTemplate($file = '')
     {
-        $view = _THEMEVIEW;
-        $view = $view ?: 'index';
-        $file = $file ?: $view;
+        $layout = config('view.theme.layout');
+        $layout = $layout ?: 'index';
+        $file   = $file ?: $layout;
 
         $extensions = config('view.extensions');
         $extensions = $extensions ?: ['tpl'];
 
         $files = [
-            THEME.$file,
-            THEMES.'system'.DS.$file,
-            THEMES.'system'.DS.'index',
+            $this->app['path.theme'].$file,
+            $this->app['path.themes'].'system'.DS.$file,
+            $this->app['path.themes'].'system'.DS.'index',
         ];
 
         $template = '';
         foreach ($files as $file) {
             foreach ($extensions as $extension) {
-                if (file_exists($file.'.'.$extension)) {
+                if (is_file($file.'.'.$extension) && file_exists($file.'.'.$extension)) {
                     $template = $file.'.'.$extension;
                     break 2;
                 }
@@ -310,28 +312,30 @@ class Template extends Di
             $this->sets('is_iframe_request', true);
         }
 
-        if ($this->data['allowme']) {
-            $this->get('session')->set('allowme', $this->data['allowme']);
-        }
-
         //check whether this site is in offline
-        if (config('app.offline.enable')) {
+        if ($this->config('app.offline.enable')) {
+            if ($this->data['allowme']) {
+                $this->get('session')->set('allowme', $this->data['allowme']);
+            }
+
             $allow = $this->get('session')->get('allowme');
-            $key   = config('app.offline.key');
+            $key   = $this->config('app.offline.key');
 
             if ((empty($allow) || $allow != $key)) {
                 return $this->fetchTemplate('offline');
             }
         }
 
-        $is_logged_in = $this->get('is_user_logged_in');
+        $is_logged_in    = $this->get('is_user_logged_in');
+        $is_ajax_request = $this->get('is_ajax_request');
+        $rule            = $this->get('rule');
 
         // default allow to every one
-        $allowed = $this->get('acl')->isAllowed($this->option, $this->view, $this->task);
-        $next    = $this->get('is_ajax_request') ? '' : Utility::currentUrl();
+        $allowed = $this->get('acl')->isAllowed($rule);
+        $next    = $is_ajax_request ? '' : Utility::currentUrl();
         $next    = $this->data['next'] ?: $next;
 
-        if (!$allowed && $this->get('is_ajax_request')) {
+        if (!$allowed && $is_ajax_request) {
             if ($this->type == 'html' || $this->format == 'html') {
                 if (!$is_logged_in) {
                     return  '<div class="alert alert-info text-bold">Please <a data-next="'.$next.'" href="'.$this->link('members/login?next='.urldecode($next)).'" role="login">login</a> to your account.</div>';
@@ -355,26 +359,22 @@ class Template extends Di
 
         //for gusets
         if (!$allowed && !$is_logged_in) {
-            $link = config('auth.account.guest');
+            $link = $this->config('auth.account.guest');
             if (empty($link)) {
                 $link = 'members/login';
             }
             $link .= '?next='.urlencode($next);
 
-            $this->redirect($link);
-
-            return '';
+            return $this->redirect($link);
         }
 
         //for already loggedin users
         if (!$allowed && $is_logged_in) {
-            $this->redirect('errors/denied');
-
-            return '';
+            return $this->redirect('errors/denied');
         }
 
         //check that is ajax request
-        if ($this->get('is_ajax_request')) {
+        if ($is_ajax_request) {
             return $this->renderAjax();
         }
 
@@ -558,14 +558,17 @@ class Template extends Di
 
         $modules = $modules[$position];
 
+        $content = '';
         foreach ($modules as $module) {
             $attribs = array_merge($attribs, $module);
             if ($module['type'] == 'component') {
-                $this->renderComponent($module['option'], $attribs);
+                $content .= $this->renderComponent($module['option'], $attribs);
             } else {
-                $this->renderModule($module['option'], $attribs);
+                $content .= $this->renderModule($module['option'], $attribs);
             }
         }
+
+        return $content;
     }
 
     protected function renderComponent($name, $attribs)
