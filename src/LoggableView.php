@@ -32,14 +32,14 @@ class LoggableView extends View
     /**
      * {@inheritdoc}
      */
-    public function render($context = [])
+    public function render($context = [], $debug = true)
     {
         if (null === $this->logger) {
-            return parent::render($context);
+            return parent::render($context, $debug);
         }
 
         $this->logger->startRender($this);
-        $content = parent::render($context, true);
+        $content = parent::render($context, $debug);
         $this->logger->stopRender($this);
 
         return $content;
