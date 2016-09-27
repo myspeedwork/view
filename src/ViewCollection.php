@@ -45,12 +45,12 @@ class ViewCollection extends \ArrayObject implements ViewInterface
     /**
      * {@inheritdoc}
      */
-    public function render($context = [])
+    public function render($context = [], $debug = true)
     {
         $content = '';
 
         foreach ($this as $view) {
-            $content .= $view->render($context);
+            $content .= $view->render($context, $debug);
         }
 
         return $content;
