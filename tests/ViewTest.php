@@ -82,11 +82,11 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
     public function testRenderWithException()
     {
-        $view = new View(__DIR__.'/Fixtures/foobar.invalid.twig', [], $this->engine, $this->sharedBag, $this->exceptionBag);
+        $view = new View(__DIR__.'/Fixtures/foobar.invalid.php', [], $this->engine, $this->sharedBag, $this->exceptionBag);
 
         $this->assertSame(0, $this->exceptionBag->count());
 
-        $view->render();
+        $view->render([], false);
 
         $this->assertSame(1, $this->exceptionBag->count());
     }
