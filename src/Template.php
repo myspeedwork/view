@@ -13,7 +13,6 @@ namespace Speedwork\View;
 
 use Speedwork\Core\Di;
 use Speedwork\Core\Traits\RequestTrait;
-use Speedwork\Util\Utility;
 
 /**
  * @author sankar <sankar.suda@gmail.com>
@@ -292,12 +291,12 @@ class Template extends Di
         return '';
     }
 
-    public function render($file = '')
+    public function render()
     {
-        return $this->onBeforeRenderTemplate($file);
+        return $this->onBeforeRenderTemplate();
     }
 
-    private function onBeforeRenderTemplate($file = '')
+    private function onBeforeRenderTemplate()
     {
         //check that is ajax request
         if ($this->data['_request'] == 'iframe'
@@ -331,8 +330,8 @@ class Template extends Di
         $rule            = $this->get('rule');
 
         // default allow to every one
-        $allowed = $this->get('acl')->isAllowed($rule);
-        $next    = $is_ajax_request ? '' : Utility::currentUrl();
+        $allowed = $this->get('acl')->isGranted($rule);
+        $next    = $is_ajax_request ? '' : $this->get('request')->fullUrlWithQuery([]);
         $next    = $this->data['next'] ?: $next;
 
         if (!$allowed && $is_ajax_request) {
@@ -378,7 +377,7 @@ class Template extends Di
             return $this->renderAjax();
         }
 
-        return $this->fetchTemplate($file);
+        return $this->fetchTemplate();
     }
 
     public function renderAjax()
