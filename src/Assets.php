@@ -70,10 +70,6 @@ class Assets
      */
     protected function cleanUrls($urls = [])
     {
-        //$path = str_replace(['\\', '/'], DS, $path);
-        //$path = str_replace(APP, _URL, $path);
-        //$path = str_replace('\\', '/', $path);
-
         return $urls;
     }
 
