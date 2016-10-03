@@ -24,7 +24,7 @@ class AssetsServiceProvider extends ServiceProvider
     public function register(Container $app)
     {
         $app['assets'] = function ($app) {
-            return new Assets($app['assetic.add']);
+            return new Assets();
         };
     }
 }

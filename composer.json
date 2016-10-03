@@ -9,9 +9,7 @@
     }],
     "require": {
         "php": ">=5.6",
-        "speedwork/core": "^1.0",
-        "speedwork/container": "^1.0",
-        "speedwork/util": "^1.0"
+        "speedwork/container" : "^1.0"
     },
     "require-dev": {
         "monolog/monolog": ">=1.0.0",

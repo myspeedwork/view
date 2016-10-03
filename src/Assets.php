@@ -22,9 +22,7 @@ use Assetic\AssetWriter;
 use Assetic\Cache\FilesystemCache;
 use Assetic\Filter\CssImportFilter;
 use Assetic\Filter\CssMinFilter;
-use Assetic\Filter\CssRewriteFilter;
 use Assetic\Filter\JSMinFilter;
-use Assetic\Filter\LessphpFilter;
 
 /**
  * @author sankar <sankar.suda@gmail.com>
@@ -57,8 +55,20 @@ class Assets
      *
      * @var array
      */
-    protected $scripts    = [];
-    protected $linkTags   = [];
+    protected $scripts = [];
+
+    /**
+     * HTML Link tags.
+     *
+     * @var array
+     */
+    protected $linkTags = [];
+
+    /**
+     * Any other custom tags.
+     *
+     * @var array
+     */
     protected $customTags = [];
 
     /**
@@ -70,7 +80,17 @@ class Assets
      */
     protected function cleanUrls($urls = [])
     {
-        return $urls;
+        $files = [];
+        foreach ($urls as $url) {
+            list($type, $file) = explode('::', $url);
+            if ($type && $file) {
+                $files[] = path($type, true).$file;
+            } else {
+                $files[] = $url;
+            }
+        }
+
+        return $files;
     }
 
     /**
@@ -104,17 +124,12 @@ class Assets
     /**
      * Adds a linked script to the page.
      *
-     * @param string $url  URL to the linked script
-     * @param string $type Type of script. Defaults to 'text/javascript'
+     * @param string $url      URL to the linked script
+     * @param string $position
      */
-    public function addScriptUrl($url, $attribs = [], $position = 'footer')
+    public function addScript($url, $position = 'footer')
     {
-        if (is_array($attribs)) {
-            $position = $attribs['position'] ?: $position;
-            unset($attribs['position']);
-        }
-
-        $this->scriptUrls[$position][$url]['attribs'] = $attribs;
+        $this->scriptUrls[$position][] = $url;
 
         return $this;
     }
@@ -126,60 +141,11 @@ class Assets
      * @param string $type  Mime encoding type
      * @param string $media Media type that this stylesheet applies to
      */
-    public function addStyleSheetUrl($url, $attribs = [], $media = null)
+    public function addStyleSheet($url, $position = 'header')
     {
-        $position = $attribs['position'] ?: 'header';
-        if (is_array($attribs)) {
-            unset($attribs['position']);
-        }
-
-        $this->styleSheets[$position][$url]['media']   = $media;
-        $this->styleSheets[$position][$url]['attribs'] = $attribs;
+        $this->styleSheets[$position][] = $url;
 
         return $this;
-    }
-
-    /**
-     * Adds a linked script to the page.
-     *
-     * @param string $filename
-     * @param string $type     Type of script. Defaults to 'text/javascript'
-     */
-    public function addScript($filename, $attribs = [], $position = 'footer')
-    {
-        if (is_string($attribs)) {
-            if ($attribs == 'bower') {
-                $attribs = STATICD;
-            }
-            $url     = $attribs.$filename;
-            $attribs = [];
-        } else {
-            $url = $filename;
-        }
-
-        return $this->addScriptUrl($url, $attribs, $position);
-    }
-
-    /**
-     * Adds a linked stylesheet to the page.
-     *
-     * @param string $filename
-     * @param string $type     Mime encoding type
-     * @param string $media    Media type that this stylesheet applies to
-     */
-    public function addStyleSheet($filename, $attribs = [], $media = null)
-    {
-        if (is_string($attribs)) {
-            if ($attribs == 'bower') {
-                $attribs = STATICD;
-            }
-            $url     = $attribs.$filename;
-            $attribs = [];
-        } else {
-            $url = $filename;
-        }
-
-        return $this->addStyleSheetUrl($url, $attribs, $media);
     }
 
     /**
@@ -190,7 +156,6 @@ class Assets
      */
     public function addScriptDeclaration($content, $position = 'footer')
     {
-        $position = $position ?: 'footer';
         $this->scripts[$position] .= "\n".$content."\n";
 
         return $this;
@@ -204,7 +169,6 @@ class Assets
      */
     public function addStyleDeclaration($content, $position = 'header')
     {
-        $position = $position ?: 'header';
         $this->styles[$position] .= "\n".$content."\n";
 
         return $this;
@@ -282,16 +246,11 @@ class Assets
         $styles = $this->styleSheets[$position];
 
         if (is_array($styles)) {
+            $styles = $this->cleanUrls($styles);
             $styles = $this->assetic($styles, 'css');
 
-            foreach ($styles as $strSrc => $attr) {
-                $html .= '<link rel="stylesheet" href="'.$strSrc.'" type="text/css"';
-                if (!is_null($attr['media'])) {
-                    $html .= ' media="'.$attr['media'].'" ';
-                }
-                if ($temp = $this->generateAttrib($attr['attribs'])) {
-                    $html .= ' '.$temp;
-                }
+            foreach ($styles as $style) {
+                $html .= '<link rel="stylesheet" href="'.$style.'" type="text/css"';
                 $html .= $tagEnd.$lnEnd;
             }
         }
@@ -316,14 +275,11 @@ class Assets
         $scripts = $this->scriptUrls[$position];
 
         if (is_array($scripts)) {
-            $scripts = $this->assetic($scripts, 'js');
-            // Generate script file links
             $scripts = $this->cleanUrls($scripts);
-            foreach ($scripts as $src => $attr) {
-                $html .= '<script type="text/javascript" src="'.$src.'"';
-                if ($temp = $this->generateAttrib($attr['attribs'])) {
-                    $html .= ' '.$temp;
-                }
+            $scripts = $this->assetic($scripts, 'js');
+
+            foreach ($scripts as $script) {
+                $html .= '<script type="text/javascript" src="'.$script.'"';
                 $html .= '></script>'.$lnEnd;
             }
         }
@@ -364,9 +320,22 @@ class Assets
 
     protected function assetic($files, $type)
     {
-        $cachePath = app('path.pcache');
-        $cache     = app('path.cache');
-        $urls      = [];
+        $urls = [];
+
+        foreach ($files as $key => $file) {
+            $assetType = $this->parseInput($file);
+            if ($assetType == 'http') {
+                $urls[] = $file;
+                unset($files[$key]);
+            }
+        }
+
+        if (empty($files)) {
+            return $urls;
+        }
+
+        $cachePath = path('pcache');
+        $cache     = path('cache');
 
         $aw = new AssetWriter($cachePath);
         $am = new AssetManager();
@@ -376,7 +345,7 @@ class Assets
         // Create the cache
         $cache = new FilesystemCache($cache);
 
-        foreach ($files as $file => $attr) {
+        foreach ($files as $file) {
             $assetType = $this->parseInput($file);
 
             // Create the asset
@@ -405,8 +374,6 @@ class Assets
             $collection->add($cachedAsset);
         }
 
-        unset($attr);
-
         $name = md5(implode(',', $files)).'.'.$type;
         $file = $cachePath.$name;
         if (!file_exists($file) || $collection->getLastModified() > filemtime($file)) {
@@ -415,7 +382,7 @@ class Assets
             $aw->writeManagerAssets($am);
         }
 
-        $urls[app('location.cache').$name] = [];
+        $urls[] = path('cache', true).$name;
 
         return $urls;
     }
@@ -426,7 +393,7 @@ class Assets
             return 'reference';
         }
 
-        if (false !== strpos($file, '://') || 0 === strpos($file, '//')) {
+        if (false !== strpos($file, '://') || substr($file, 0, 2) == '//') {
             return 'http';
         }
 
@@ -445,7 +412,6 @@ class Assets
         if ($ext == '.css') {
             return [
                 new CssImportFilter(),
-                new CssRewriteFilter(),
                 new CssMinFilter(),
             ];
         }
@@ -453,12 +419,6 @@ class Assets
         if ($ext == '.js') {
             return [
                 new JSMinFilter(),
-            ];
-        }
-
-        if ($ext == '.less') {
-            return [
-                new LessphpFilter(),
             ];
         }
     }

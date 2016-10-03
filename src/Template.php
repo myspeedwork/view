@@ -296,7 +296,7 @@ class Template extends Di
         return $this->onBeforeRenderTemplate();
     }
 
-    private function onBeforeRenderTemplate()
+    protected function onBeforeRenderTemplate()
     {
         //check that is ajax request
         if ($this->data['_request'] == 'iframe'
