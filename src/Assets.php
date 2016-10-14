@@ -255,13 +255,11 @@ class Assets
             }
         }
 
-        if (is_array($this->styles[$position])) {
+        if ($this->styles[$position]) {
             // Generate stylesheet declarations
-            foreach ($this->styles[$position] as $content) {
-                $html .= '<style type="text/css">'.$lnEnd;
-                $html .= $content.$lnEnd;
-                $html .= '</style>'.$lnEnd;
-            }
+            $html .= '<style type="text/css">'.$lnEnd;
+            $html .= $this->styles[$position].$lnEnd;
+            $html .= '</style>'.$lnEnd;
         }
 
         return $html;
@@ -283,16 +281,13 @@ class Assets
                 $html .= '></script>'.$lnEnd;
             }
         }
-
         // Generate script declarations
-        if (is_array($this->scripts[$position])) {
-            foreach ($this->scripts[$position] as $content) {
-                $html .= '<script type="text/javascript">'.$lnEnd;
-                $html .= 'jQuery(document).ready(function(){'.$lnEnd;
-                $html .= $content.$lnEnd;
-                $html .= '});'.$lnEnd;
-                $html .= '</script>'.$lnEnd;
-            }
+        if ($this->scripts[$position]) {
+            $html .= '<script type="text/javascript">'.$lnEnd;
+            $html .= 'jQuery(document).ready(function(){'.$lnEnd;
+            $html .= $this->scripts[$position].$lnEnd;
+            $html .= '});'.$lnEnd;
+            $html .= '</script>'.$lnEnd;
         }
 
         if (is_array($this->customTags[$position])) {

@@ -353,7 +353,7 @@ class Template extends Di
                 $status['message'] = 'Your don\'t have sufficient permissions..';
             }
 
-            return json_encode($status);
+            return $status;
         }
 
         //for gusets
@@ -443,9 +443,7 @@ class Template extends Di
 
                         return $html;
                     } else {
-                        header('Content-Type: application/json');
-
-                        return json_encode($response);
+                        return $response;
                     }
                 }
             }
