@@ -78,8 +78,9 @@ class Template extends Di
                 }
                 $href = '';
                 if ($file['href']) {
-                    $href = (strpos($file['href'], 'link:') !== false) ?
-                                        $this->link(str_replace('link:', '', $file['href'])) : $file['href'];
+                    $href = (strpos($file['href'], 'link:') !== false)
+                        ? $this->link(str_replace('link:', '', $file['href']))
+                        : $file['href'];
                 }
 
                 $files[] = '<span>'.(($href) ? ' <a href="'.$href.'"> ' : '').$file['text'].(($href) ? '</a>' : ' ').'</span>';
@@ -380,7 +381,7 @@ class Template extends Di
         $next = $this->input('next') ?: $next;
 
         if ($isAjax) {
-            if ($this->type == 'html' || $this->format == 'html') {
+            if ($this->get('type') == 'html' || $this->get('format') == 'html') {
                 if (!$is_logged_in) {
                     return '<div class="alert alert-info text-bold">Please <a data-next="'.$next.'" href="'.$this->link('members/login?next='.urldecode($next)).'" role="login">login</a> to your account.</div>';
                 }
@@ -407,7 +408,10 @@ class Template extends Di
             if (empty($link)) {
                 $link = 'members/login';
             }
-            $link .= '?next='.urlencode($next);
+
+            $link   = $this->link($link);
+            $prefix = strpos($link, '?') === false ? '?' : ':';
+            $link .= $prefix.'next='.urlencode($next);
 
             return $this->redirect($link);
         }
